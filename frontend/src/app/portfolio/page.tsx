@@ -1,6 +1,8 @@
 import { getAllProjects } from "@/lib/content"
 import { ProjectCard } from "@/components/portfolio/project-card"
 
+export const metadata = { title: "Portfolio", description: "프로젝트 포트폴리오" }
+
 export default function PortfolioPage() {
   const projects = getAllProjects()
 

@@ -5,6 +5,16 @@ import { TableOfContents } from "@/components/blog/table-of-contents"
 import { TagBadge } from "@/components/blog/tag-badge"
 import { CommentSection } from "@/components/comments/comment-section"
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
+  if (!post) return {}
+  return {
+    title: post.frontmatter.title,
+    description: post.frontmatter.summary,
+  }
+}
+
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }))
 }

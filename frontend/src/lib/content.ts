@@ -73,23 +73,29 @@ export function getAllProjects(): Project[] {
 
   const files = fs.readdirSync(PROJECTS_DIR).filter((f) => f.endsWith(".mdx"))
 
-  return files.map((filename) => {
-    const slug = filename.replace(".mdx", "")
-    const filePath = path.join(PROJECTS_DIR, filename)
-    const fileContent = fs.readFileSync(filePath, "utf-8")
-    const { data, content } = matter(fileContent)
+  return files
+    .map((filename) => {
+      const slug = filename.replace(".mdx", "")
+      const filePath = path.join(PROJECTS_DIR, filename)
+      const fileContent = fs.readFileSync(filePath, "utf-8")
+      const { data, content } = matter(fileContent)
+      const published = Boolean(data.published)
 
-    return {
-      slug,
-      title: String(data.title ?? ""),
-      summary: String(data.summary ?? ""),
-      tags: Array.isArray(data.tags) ? data.tags : [],
-      github: data.github as string | undefined,
-      demo: data.demo as string | undefined,
-      image: data.image as string | undefined,
-      content,
-    }
-  })
+      if (!published) return null
+
+      return {
+        slug,
+        title: String(data.title ?? ""),
+        summary: String(data.summary ?? ""),
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        github: data.github as string | undefined,
+        demo: data.demo as string | undefined,
+        image: data.image as string | undefined,
+        published,
+        content,
+      }
+    })
+    .filter(Boolean) as Project[]
 }
 
 export function getProjectBySlug(slug: string): Project | null {
@@ -100,6 +106,9 @@ export function getProjectBySlug(slug: string): Project | null {
 
   const fileContent = fs.readFileSync(filePath, "utf-8")
   const { data, content } = matter(fileContent)
+  const published = Boolean(data.published)
+
+  if (!published) return null
 
   return {
     slug,
@@ -109,6 +118,7 @@ export function getProjectBySlug(slug: string): Project | null {
     github: data.github as string | undefined,
     demo: data.demo as string | undefined,
     image: data.image as string | undefined,
+    published,
     content,
   }
 }

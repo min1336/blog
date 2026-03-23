@@ -4,6 +4,16 @@ import { MDXContent } from "@/components/mdx/mdx-content"
 import { TagBadge } from "@/components/blog/tag-badge"
 import { ExternalLink, GitFork } from "lucide-react"
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const project = getProjectBySlug(slug)
+  if (!project) return {}
+  return {
+    title: project.title,
+    description: project.summary,
+  }
+}
+
 export function generateStaticParams() {
   return getAllProjects().map((project) => ({ slug: project.slug }))
 }

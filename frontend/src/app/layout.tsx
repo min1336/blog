@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: {
+    default: "Blog",
+    template: "%s | Blog",
+  },
   description: "개인 기술 블로그",
 };
 

@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+export const metadata = { title: "About", description: "소개 페이지" }
+
 const techStack: Record<string, string[]> = {
   "Frontend": ["Next.js", "React", "TypeScript", "Tailwind CSS"],
   "Backend": ["Spring Boot", "Java", "Spring Security"],

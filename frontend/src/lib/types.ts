@@ -22,5 +22,6 @@ export interface Project {
   github?: string
   demo?: string
   image?: string
+  published: boolean
   content: string
 }

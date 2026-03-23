@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/content"
 import { PostCard } from "@/components/blog/post-card"
 
+export const metadata = { title: "Blog", description: "기술 블로그 포스트 목록" }
+
 export default function BlogPage() {
   const posts = getAllPosts()
 
