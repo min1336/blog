@@ -3,6 +3,7 @@ import { getPostBySlug, getAllPosts } from "@/lib/content"
 import { MDXContent } from "@/components/mdx/mdx-content"
 import { TableOfContents } from "@/components/blog/table-of-contents"
 import { TagBadge } from "@/components/blog/tag-badge"
+import { CommentSection } from "@/components/comments/comment-section"
 
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }))
@@ -36,6 +37,7 @@ export default async function BlogPostPage({
           </div>
         </header>
         <MDXContent source={post.content} />
+        <CommentSection postSlug={slug} />
       </div>
       <aside className="w-56 shrink-0 hidden xl:block">
         <TableOfContents content={post.content} />
