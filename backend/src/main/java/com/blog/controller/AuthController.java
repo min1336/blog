@@ -3,6 +3,7 @@ package com.blog.controller;
 import com.blog.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,16 +22,15 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> me(@AuthenticationPrincipal OAuth2User principal) {
-        if (principal == null) {
+    public ResponseEntity<?> me(@AuthenticationPrincipal OAuth2User principal,
+                                 OAuth2AuthenticationToken authentication) {
+        if (principal == null || authentication == null) {
             return ResponseEntity.ok(Map.of("authenticated", false));
         }
-
-        // Get the provider from the OAuth2User's authorities or attributes
+        String provider = authentication.getAuthorizedClientRegistrationId();
         String oauthId = principal.getName();
 
-        return userRepository.findByOauthIdAndProvider(oauthId, "github")
-            .or(() -> userRepository.findByOauthIdAndProvider(oauthId, "google"))
+        return userRepository.findByOauthIdAndProvider(oauthId, provider)
             .map(user -> ResponseEntity.ok(Map.of(
                 "authenticated", true,
                 "id", user.getId().toString(),

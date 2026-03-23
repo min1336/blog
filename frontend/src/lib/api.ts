@@ -1,10 +1,14 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
 
 export async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T> {
+  const { headers: customHeaders, ...rest } = options ?? {}
   const res = await fetch(`${API_URL}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    ...options,
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      ...(customHeaders as Record<string, string>),
+    },
   })
   if (!res.ok) throw new Error(`API Error: ${res.status}`)
   return res.json()
@@ -44,8 +48,9 @@ export async function createComment(postSlug: string, content: string, parentId?
 }
 
 export async function deleteComment(postSlug: string, commentId: string): Promise<void> {
-  await fetch(`${API_URL}/api/comments/${postSlug}/${commentId}`, {
+  const res = await fetch(`${API_URL}/api/comments/${postSlug}/${commentId}`, {
     method: "DELETE",
     credentials: "include",
   })
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`)
 }
