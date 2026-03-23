@@ -20,8 +20,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/comments/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/comments/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()
-                .anyRequest().permitAll()
+                .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                .anyRequest().denyAll()
             );
         return http.build();
     }

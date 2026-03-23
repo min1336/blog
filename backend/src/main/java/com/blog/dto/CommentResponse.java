@@ -16,14 +16,15 @@ public record CommentResponse(
     List<CommentResponse> replies
 ) {
     public static CommentResponse from(Comment comment, List<CommentResponse> replies) {
+        boolean deleted = comment.isDeleted();
         return new CommentResponse(
             comment.getId(),
-            comment.isDeleted() ? "삭제된 댓글입니다." : comment.getContent(),
-            comment.getAuthor().getName(),
-            comment.getAuthor().getAvatarUrl(),
-            comment.getAuthor().getId(),
+            deleted ? "삭제된 댓글입니다." : comment.getContent(),
+            deleted ? "익명" : comment.getAuthor().getName(),
+            deleted ? null : comment.getAuthor().getAvatarUrl(),
+            deleted ? null : comment.getAuthor().getId(),
             comment.getCreatedAt(),
-            comment.isDeleted(),
+            deleted,
             replies
         );
     }

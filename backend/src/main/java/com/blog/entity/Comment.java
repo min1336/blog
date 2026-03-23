@@ -30,9 +30,9 @@ public class Comment {
     private String content;
 
     @Column(nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
-    private Instant updatedAt = Instant.now();
+    private Instant updatedAt;
 
     private Instant deletedAt;
 
@@ -45,6 +45,17 @@ public class Comment {
         this.parent = parent;
     }
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
     public UUID getId() { return id; }
     public String getPostSlug() { return postSlug; }
     public Comment getParent() { return parent; }
@@ -52,7 +63,6 @@ public class Comment {
     public String getContent() { return content; }
     public void setContent(String content) {
         this.content = content;
-        this.updatedAt = Instant.now();
     }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }

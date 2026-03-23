@@ -4,13 +4,16 @@ import com.blog.dto.CommentRequest;
 import com.blog.dto.CommentResponse;
 import com.blog.service.CommentService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
+@Validated
 public class CommentController {
 
     private final CommentService commentService;
@@ -20,7 +23,8 @@ public class CommentController {
     }
 
     @GetMapping("/{postSlug}")
-    public List<CommentResponse> getComments(@PathVariable String postSlug) {
+    public List<CommentResponse> getComments(
+            @PathVariable @Pattern(regexp = "^[a-z0-9][a-z0-9-]*[a-z0-9]$", message = "Invalid post slug") String postSlug) {
         return commentService.getComments(postSlug);
     }
 

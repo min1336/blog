@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,16 +24,22 @@ public class CommentService {
     }
 
     public List<CommentResponse> getComments(String postSlug) {
-        List<Comment> topLevel = commentRepository
-            .findByPostSlugAndParentIsNullAndDeletedAtIsNullOrderByCreatedAtDesc(postSlug);
-        return topLevel.stream()
+        List<Comment> allComments = commentRepository.findAllByPostSlugWithAuthor(postSlug);
+
+        Map<UUID, List<Comment>> repliesByParentId = allComments.stream()
+            .filter(c -> c.getParent() != null)
+            .collect(Collectors.groupingBy(c -> c.getParent().getId()));
+
+        return allComments.stream()
+            .filter(c -> c.getParent() == null)
+            .filter(c -> !c.isDeleted() || repliesByParentId.containsKey(c.getId()))
             .map(comment -> {
-                List<Comment> replies = commentRepository
-                    .findByParentIdOrderByCreatedAtAsc(comment.getId());
-                List<CommentResponse> replyDtos = replies.stream()
+                List<CommentResponse> replies = repliesByParentId
+                    .getOrDefault(comment.getId(), List.of())
+                    .stream()
                     .map(r -> CommentResponse.from(r, List.of()))
                     .toList();
-                return CommentResponse.from(comment, replyDtos);
+                return CommentResponse.from(comment, replies);
             })
             .toList();
     }

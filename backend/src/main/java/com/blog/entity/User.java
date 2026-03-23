@@ -12,19 +12,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 255)
     private String oauthId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String provider;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(length = 512)
     private String avatarUrl;
 
     @Column(nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
     protected User() {}
 
@@ -33,6 +34,11 @@ public class User {
         this.provider = provider;
         this.name = name;
         this.avatarUrl = avatarUrl;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = Instant.now();
     }
 
     public UUID getId() { return id; }
