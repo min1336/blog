@@ -1,6 +1,21 @@
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${OAUTH_GITHUB_CLIENT_ID}
+            client-secret: ${OAUTH_GITHUB_CLIENT_SECRET}
+            scope: read:user,user:email
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/blog}
     username: ${DATABASE_USERNAME:postgres}
