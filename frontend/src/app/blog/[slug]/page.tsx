@@ -23,7 +23,7 @@ export default async function BlogPostPage({
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-3">{post.frontmatter.title}</h1>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <time>{post.frontmatter.date}</time>
+            <time dateTime={post.frontmatter.date}>{post.frontmatter.date}</time>
             <span>·</span>
             <span>{post.readingTime}</span>
             <span>·</span>

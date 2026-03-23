@@ -1,21 +1,19 @@
-interface TocItem {
-  id: string
-  text: string
-  level: number
-}
+import GithubSlugger from "github-slugger"
 
 export function TableOfContents({ content }: { content: string }) {
-  const headings: TocItem[] = content
+  const slugger = new GithubSlugger()
+  let inCodeBlock = false
+
+  const headings = content
     .split("\n")
-    .filter((line) => /^#{2,3}\s/.test(line))
+    .filter((line) => {
+      if (line.startsWith("```")) inCodeBlock = !inCodeBlock
+      return !inCodeBlock && /^#{2,3}\s/.test(line)
+    })
     .map((line) => {
       const level = line.match(/^#+/)![0].length
       const text = line.replace(/^#+\s/, "")
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9가-힣\s]+/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/(^-|-$)/g, "")
+      const id = slugger.slug(text)
       return { id, text, level }
     })
 

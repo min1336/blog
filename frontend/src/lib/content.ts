@@ -6,6 +6,17 @@ import { Post, PostFrontmatter } from "./types"
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog")
 
+function validateFrontmatter(data: Record<string, unknown>): PostFrontmatter {
+  return {
+    title: String(data.title ?? ""),
+    date: String(data.date ?? ""),
+    summary: String(data.summary ?? ""),
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    category: String(data.category ?? ""),
+    published: Boolean(data.published),
+  }
+}
+
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(BLOG_DIR)) return []
 
@@ -17,7 +28,7 @@ export function getAllPosts(): Post[] {
       const filePath = path.join(BLOG_DIR, filename)
       const fileContent = fs.readFileSync(filePath, "utf-8")
       const { data, content } = matter(fileContent)
-      const frontmatter = data as PostFrontmatter
+      const frontmatter = validateFrontmatter(data)
 
       if (!frontmatter.published) return null
 
@@ -37,14 +48,19 @@ export function getAllPosts(): Post[] {
 
 export function getPostBySlug(slug: string): Post | null {
   const filePath = path.join(BLOG_DIR, `${slug}.mdx`)
+  const resolvedPath = path.resolve(filePath)
+  if (!resolvedPath.startsWith(path.resolve(BLOG_DIR))) return null
   if (!fs.existsSync(filePath)) return null
 
   const fileContent = fs.readFileSync(filePath, "utf-8")
   const { data, content } = matter(fileContent)
+  const frontmatter = validateFrontmatter(data)
+
+  if (!frontmatter.published) return null
 
   return {
     slug,
-    frontmatter: data as PostFrontmatter,
+    frontmatter,
     content,
     readingTime: readingTime(content).text,
   }

@@ -15,8 +15,8 @@ const options = {
 
 export function MDXContent({ source }: { source: string }) {
   return (
-    <article className="prose prose-invert max-w-none prose-headings:scroll-mt-20 prose-code:before:hidden prose-code:after:hidden">
-      {/* @ts-expect-error Server Component */}
+    <article className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-code:before:hidden prose-code:after:hidden">
+      {/* @ts-expect-error rehype plugin types are incompatible with next-mdx-remote's Pluggable type */}
       <MDXRemote source={source} options={options} />
     </article>
   )

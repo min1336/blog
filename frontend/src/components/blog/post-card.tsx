@@ -15,7 +15,7 @@ export function PostCard({ slug, frontmatter, readingTime }: PostCardProps) {
       <Card className="hover:bg-accent/50 transition-colors">
         <CardHeader>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-            <time>{frontmatter.date}</time>
+            <time dateTime={frontmatter.date}>{frontmatter.date}</time>
             <span>·</span>
             <span>{readingTime}</span>
           </div>
