@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
 import readingTime from "reading-time"
-import { Post, PostFrontmatter } from "./types"
+import { Post, PostFrontmatter, Project } from "./types"
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog")
 
@@ -63,6 +63,53 @@ export function getPostBySlug(slug: string): Post | null {
     frontmatter,
     content,
     readingTime: readingTime(content).text,
+  }
+}
+
+const PROJECTS_DIR = path.join(process.cwd(), "content/projects")
+
+export function getAllProjects(): Project[] {
+  if (!fs.existsSync(PROJECTS_DIR)) return []
+
+  const files = fs.readdirSync(PROJECTS_DIR).filter((f) => f.endsWith(".mdx"))
+
+  return files.map((filename) => {
+    const slug = filename.replace(".mdx", "")
+    const filePath = path.join(PROJECTS_DIR, filename)
+    const fileContent = fs.readFileSync(filePath, "utf-8")
+    const { data, content } = matter(fileContent)
+
+    return {
+      slug,
+      title: String(data.title ?? ""),
+      summary: String(data.summary ?? ""),
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      github: data.github as string | undefined,
+      demo: data.demo as string | undefined,
+      image: data.image as string | undefined,
+      content,
+    }
+  })
+}
+
+export function getProjectBySlug(slug: string): Project | null {
+  const filePath = path.join(PROJECTS_DIR, `${slug}.mdx`)
+  const resolvedPath = path.resolve(filePath)
+  if (!resolvedPath.startsWith(path.resolve(PROJECTS_DIR))) return null
+  if (!fs.existsSync(filePath)) return null
+
+  const fileContent = fs.readFileSync(filePath, "utf-8")
+  const { data, content } = matter(fileContent)
+
+  return {
+    slug,
+    title: String(data.title ?? ""),
+    summary: String(data.summary ?? ""),
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    github: data.github as string | undefined,
+    demo: data.demo as string | undefined,
+    image: data.image as string | undefined,
+    content,
   }
 }
 
