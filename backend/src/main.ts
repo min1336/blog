@@ -4,11 +4,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api');
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
