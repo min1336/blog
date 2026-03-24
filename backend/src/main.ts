@@ -9,8 +9,13 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 async function bootstrap() {
-  if (process.env.JWT_SECRET === undefined || process.env.JWT_SECRET === 'default-secret') {
-    console.warn('[SECURITY] JWT_SECRET이 설정되지 않았습니다. 운영 환경에서는 반드시 강력한 비밀키를 설정하세요.');
+  if (
+    process.env.JWT_SECRET === undefined ||
+    process.env.JWT_SECRET === 'default-secret'
+  ) {
+    console.warn(
+      '[SECURITY] JWT_SECRET이 설정되지 않았습니다. 운영 환경에서는 반드시 강력한 비밀키를 설정하세요.',
+    );
   }
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -35,9 +40,11 @@ async function bootstrap() {
     }),
   );
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   await app.listen(4000);
   console.log('Backend running on http://localhost:4000');
 }
-bootstrap();
+void bootstrap();
