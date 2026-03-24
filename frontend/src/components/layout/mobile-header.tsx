@@ -25,10 +25,8 @@ export function MobileHeader() {
       <div className="flex items-center gap-2">
         <ThemeToggle />
         <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
+          <SheetTrigger className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent">
+            <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="left">
             <nav className="flex flex-col gap-2 mt-8">
