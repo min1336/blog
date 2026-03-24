@@ -3,16 +3,20 @@ import type { ApiResponse, Post, Project, Comment, Category, Tag } from './types
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<ApiResponse<T>> {
-  const res = await fetch(`${API_URL}/api${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    ...options,
-  });
-  const json = await res.json();
-  if (!json.success) {
-    throw new Error(json.error?.message || 'API Error');
+  try {
+    const res = await fetch(`${API_URL}/api${path}`, {
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      ...options,
+    });
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(json.error?.message || 'API Error');
+    }
+    return json;
+  } catch {
+    return { success: false, data: [] as unknown as T, message: 'API unavailable' };
   }
-  return json;
 }
 
 // Posts
