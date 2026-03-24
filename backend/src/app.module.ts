@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { ProjectsModule } from './projects/projects.module';
 import { CommentsModule } from './comments/comments.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CommentsModule } from './comments/comments.module';
     PostsModule,
     ProjectsModule,
     CommentsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
