@@ -1,4 +1,41 @@
 services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      - API_URL=http://backend:4000
+
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=blog
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=blog
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - CORS_ORIGIN=http://localhost:3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
   mysql:
     image: mysql:8
     ports:
@@ -18,3 +55,4 @@ services:
 
 volumes:
   mysql_data:
+  uploads_data:

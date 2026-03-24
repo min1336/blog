@@ -1,7 +1,27 @@
+import type { Metadata } from 'next';
 import { getProject } from '@/lib/api';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { Badge } from '@/components/ui/badge';
 import { Github, ExternalLink } from 'lucide-react';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const res = await getProject(slug);
+  const project = res.data;
+  return {
+    title: `${project.title} | My Blog`,
+    description: project.summary || project.title,
+    openGraph: {
+      title: project.title,
+      description: project.summary || project.title,
+      images: project.thumbnail ? [project.thumbnail] : [],
+    },
+  };
+}
 
 export default async function ProjectDetailPage({
   params,

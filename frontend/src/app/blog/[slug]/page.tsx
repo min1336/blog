@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPost } from '@/lib/api';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
@@ -6,6 +7,25 @@ import { TagBadge } from '@/components/blog/tag-badge';
 import { CommentSection } from '@/components/comments/comment-section';
 import { ArrowLeft, ArrowRight, Eye, Clock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const res = await getPost(slug);
+  const post = res.data;
+  return {
+    title: `${post.title} | My Blog`,
+    description: post.summary || post.title,
+    openGraph: {
+      title: post.title,
+      description: post.summary || post.title,
+      images: post.thumbnail ? [post.thumbnail] : [],
+    },
+  };
+}
 
 export default async function BlogDetailPage({
   params,
