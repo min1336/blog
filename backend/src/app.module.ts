@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { ProjectsModule } from './projects/projects.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -19,10 +22,13 @@ import { ProjectsModule } from './projects/projects.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     AuthModule,
     PostsModule,
     ProjectsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
