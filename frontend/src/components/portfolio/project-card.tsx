@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Github, ExternalLink } from 'lucide-react';
+import { GitBranch, ExternalLink } from 'lucide-react';
 import type { Project } from '@/lib/types';
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -42,7 +42,7 @@ export function ProjectCard({ project }: { project: Project }) {
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
-              <Github className="h-4 w-4" /> GitHub
+              <GitBranch className="h-4 w-4" /> GitHub
             </a>
           )}
           {project.demo_url && (

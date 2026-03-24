@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getProject } from '@/lib/api';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
 import { Badge } from '@/components/ui/badge';
-import { Github, ExternalLink } from 'lucide-react';
+import { GitBranch, ExternalLink } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -56,7 +56,7 @@ export default async function ProjectDetailPage({
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm hover:underline"
             >
-              <Github className="h-4 w-4" /> GitHub
+              <GitBranch className="h-4 w-4" /> GitHub
             </a>
           )}
           {project.demo_url && (
