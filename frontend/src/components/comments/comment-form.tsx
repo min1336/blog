@@ -54,10 +54,11 @@ export function CommentForm({ slug, parentId, onSuccess, onCancel }: CommentForm
         />
         <Input
           type="password"
-          placeholder="비밀번호"
+          placeholder="비밀번호 (4자 이상)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          minLength={4}
           className="flex-1"
         />
       </div>
