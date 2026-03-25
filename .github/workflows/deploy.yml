@@ -42,5 +42,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/blog
+            git pull
             docker-compose pull backend
             docker-compose up -d
