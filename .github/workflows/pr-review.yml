@@ -1,0 +1,192 @@
+# [4] PR 팀 리뷰 - PR이 열리면 연결된 이슈의 팀 구성으로 코드 리뷰
+name: Team PR Review
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  # ─── PR에 연결된 이슈에서 팀 라벨 읽기 ──────────────────
+  setup:
+    if: "!github.event.pull_request.draft"
+    runs-on: ubuntu-latest
+    outputs:
+      roles: ${{ steps.resolve.outputs.roles }}
+    steps:
+      - name: Get team from linked issue
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // PR 본문에서 "Closes #N" 패턴으로 이슈 번호 추출
+            const body = context.payload.pull_request.body || '';
+            const match = body.match(/[Cc]loses?\s+#(\d+)/);
+
+            let roles = '["security","qa","reviewer"]'; // 기본: team/bug
+
+            if (match) {
+              const issueNumber = parseInt(match[1]);
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+
+              const teamLabel = issue.labels.find(l => l.name.startsWith('team/'));
+              if (teamLabel) {
+                const teams = {
+                  'team/full': '["architect","security","qa","reviewer","designer","cs","po","marketing"]',
+                  'team/tech': '["architect","security","qa","reviewer"]',
+                  'team/product': '["po","designer","cs","marketing"]',
+                  'team/design': '["designer","reviewer","po"]',
+                  'team/bug': '["security","qa","reviewer"]',
+                  'team/docs': '["po","marketing","reviewer"]'
+                };
+                roles = teams[teamLabel.name] || roles;
+              }
+            }
+
+            // PR 리뷰에서는 기술 역할만 필터링 (코드를 보는 역할)
+            const codeRoles = ['architect', 'security', 'qa', 'reviewer', 'designer'];
+            const parsed = JSON.parse(roles);
+            const filtered = parsed.filter(r => codeRoles.includes(r));
+            const result = filtered.length > 0 ? filtered : ['security', 'qa', 'reviewer'];
+
+            core.setOutput('roles', JSON.stringify(result));
+
+  # ─── 팀원별 코드 리뷰 ──────────────────────────────────
+  review:
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        role: ${{ fromJSON(needs.setup.outputs.roles) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --max-turns 8
+            --allowedTools
+            mcp__github_inline_comment__create_inline_comment,
+            Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),
+            Read,Glob,Grep
+          prompt: |
+            이 PR을 당신의 역할로 리뷰하세요.
+            인라인 코멘트로 해당 코드 라인에 직접 피드백을 작성하세요.
+
+            ${{ matrix.role == 'architect' && '
+            🏗️ **아키텍트 리뷰**
+            - 설계 패턴, 모듈 구조, 의존성 방향
+            - 기존 아키텍처와의 일관성
+            - 확장성, 결합도
+            접두어: "🏗️ [설계]"
+
+            PR 코멘트 요약:
+            ## 🏗️ 아키텍처 리뷰
+            [설계 관점 총평]
+            ' || '' }}
+
+            ${{ matrix.role == 'security' && '
+            🛡️ **화이트해커 리뷰**
+            - 인젝션 (SQL, XSS, command), CSRF, SSRF
+            - 하드코딩 시크릿, 인증/인가 우회
+            - 사용자 입력 미검증, 안전하지 않은 deserialization
+            - 민감 데이터 로깅
+            접두어: "🛡️ [보안]"
+
+            PR 코멘트 요약:
+            ## 🛡️ 보안 리뷰
+            🔴 Critical: N건 / 🟡 Warning: N건 / ✅ Clean: N건
+            ' || '' }}
+
+            ${{ matrix.role == 'qa' && '
+            🧪 **QA 리뷰**
+            - 새 코드의 테스트 존재 여부
+            - 엣지 케이스 커버리지
+            - 실패 시나리오 테스트
+            - 기존 테스트 깨짐 위험
+            접두어: "🧪 [QA]"
+
+            PR 코멘트 요약:
+            ## 🧪 QA 리뷰
+            테스트 커버리지: [평가]
+            누락 테스트: [목록]
+            ' || '' }}
+
+            ${{ matrix.role == 'reviewer' && '
+            🔍 **코드 리뷰**
+            - 프로젝트 패턴/컨벤션 준수
+            - 중복 코드, 불필요한 복잡성
+            - 에러 핸들링, dead code
+            - 성능 (N+1, 메모리 누수, 불필요한 연산)
+            접두어: "🔍 [코드]"
+
+            PR 코멘트 요약:
+            ## 🔍 코드 리뷰
+            🔴 수정 필요: N건 / 🟡 권장: N건 / 🔵 제안: N건
+            ' || '' }}
+
+            ${{ matrix.role == 'designer' && '
+            🎨 **디자이너 리뷰**
+            - UI 컴포넌트 구조, 디자인 시스템 일관성
+            - 접근성 (aria 속성, 키보드 네비게이션, 색상 대비)
+            - 반응형 구현
+            - 사용자 경험 흐름
+            접두어: "🎨 [디자인]"
+
+            PR 코멘트 요약:
+            ## 🎨 디자인 리뷰
+            접근성: [평가] / UI 일관성: [평가]
+            ' || '' }}
+
+  # ─── 팀장 종합 판정 ──────────────────────────────────
+  lead-verdict:
+    needs: [setup, review]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --max-turns 5
+            --allowedTools
+            Bash(gh pr view:*),Bash(gh pr comment:*),
+            Read,Glob,Grep
+          prompt: |
+            👔 **팀장**으로서 팀원들의 PR 리뷰를 종합하세요.
+
+            `gh pr view ${{ github.event.pull_request.number }} --comments --json comments`
+            로 리뷰 코멘트를 모두 읽으세요.
+
+            PR 코멘트로 종합 판정 작성:
+
+            ## 👔 팀장 종합 판정
+
+            | 역할 | 판정 |
+            |------|------|
+            | [참여한 역할] | ✅ / ⚠️ / ❌ |
+
+            ### 최종: ✅ 머지 가능 / ⚠️ 수정 후 머지 / ❌ 수정 필요
+
+            [🔴 항목이 있으면 구체적 수정 요청]
+            [전체가 깨끗하면 "머지 가능" 판정]

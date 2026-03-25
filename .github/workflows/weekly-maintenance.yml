@@ -1,0 +1,76 @@
+# [6] 주간 유지보수 - 매주 월요일: stale 정리 + 의존성 보안 감사 + 주간 리포트 (언어 무관)
+name: Weekly Maintenance
+on:
+  schedule:
+    - cron: "0 1 * * 1" # 매주 월요일 오전 10시 (KST = UTC+9)
+  workflow_dispatch: # 수동 실행도 가능
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      id-token: write
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --max-turns 15
+            --allowedTools
+            mcp__github__get_issue,mcp__github__list_issues,mcp__github__search_issues,
+            mcp__github__create_issue,mcp__github__create_issue_comment,mcp__github__update_issue,
+            Bash(gh pr list:*),Bash(gh pr view:*),Bash(git log:*),
+            Read,Glob,Grep
+          prompt: |
+            주간 유지보수 작업을 수행하세요.
+
+            ## 1. Stale 이슈 정리
+            mcp__github__list_issues로 열린 이슈 목록을 가져오세요.
+            - 30일 이상 활동 없는 이슈:
+              → "stale" 라벨 추가
+              → 댓글: "30일간 활동이 없어 stale로 표시합니다. 아직 필요한 이슈라면 댓글을 남겨주세요."
+            - 이미 "stale" 라벨이 있고 60일 이상 활동 없는 이슈:
+              → 닫기 (reason: "not planned")
+              → 댓글: "60일간 활동이 없어 닫습니다. 필요하면 다시 열어주세요."
+
+            ## 2. Stale PR 리마인더
+            `gh pr list --state open --json number,title,updatedAt,author` 실행
+            - 14일 이상 리뷰 대기 중인 PR:
+              → `gh pr comment`으로 리마인더 작성
+
+            ## 3. 의존성 보안 감사
+            프로젝트의 언어/패키지 매니저를 파악하고 보안 감사를 실행하세요:
+            - Node.js: `npm audit` 또는 `yarn audit`
+            - Python: `pip audit` (설치 후) 또는 `safety check`
+            - Go: `govulncheck ./...`
+            - Rust: `cargo audit`
+            - Ruby: `bundle audit`
+            - 해당 도구가 없으면 건너뛰기
+
+            high/critical 취약점이 있으면:
+            → 이슈 생성
+            → 제목: "[보안] 의존성 취약점 발견 - {패키지명}"
+            → 본문: 취약점 상세 (패키지, 버전, 설명, 해결 방법)
+            → 라벨: "bug", "priority: high", "claude"
+
+            ## 4. 주간 요약 이슈 작성
+            `git log --since="7 days ago" --oneline` 로 이번 주 커밋 확인
+            `gh pr list --state merged --json number,title,mergedAt` 로 머지된 PR 확인
+
+            이슈 생성:
+            - 제목: "[주간 리포트] 주간 요약"
+            - 라벨: "report"
+            - 본문:
+              - 이번 주 머지된 PR (번호, 제목)
+              - 새로 열린 이슈 수
+              - 닫힌 이슈 수
+              - 현재 열린 이슈 중 priority: high 목록
+              - 의존성 보안 상태 요약
