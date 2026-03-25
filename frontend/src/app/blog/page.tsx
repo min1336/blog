@@ -65,8 +65,20 @@ export default async function BlogPage({
 
       {posts.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-muted-foreground text-lg">아직 글이 없습니다.</p>
-          <p className="text-sm text-muted-foreground mt-1">첫 번째 글을 작성해보세요.</p>
+          {/* 검색 중이면 검색 결과 없음, 아니면 게시글 없음 메시지 구분 */}
+          {params.search ? (
+            <>
+              <p className="text-muted-foreground text-lg">
+                &ldquo;{params.search}&rdquo; 검색 결과가 없습니다.
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">다른 키워드로 검색해보세요.</p>
+            </>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-lg">아직 글이 없습니다.</p>
+              <p className="text-sm text-muted-foreground mt-1">첫 번째 글을 작성해보세요.</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
@@ -81,7 +93,7 @@ export default async function BlogPage({
           {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
             <a
               key={p}
-              href={`/blog?page=${p}${params.category ? `&category=${params.category}` : ''}`}
+              href={`/blog?page=${p}${params.category ? `&category=${params.category}` : ''}${params.search ? `&search=${encodeURIComponent(params.search)}` : ''}${params.tag ? `&tag=${encodeURIComponent(params.tag)}` : ''}`}
               className={`w-9 h-9 flex items-center justify-center rounded-lg border text-sm transition-colors ${p === meta.page ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border-transparent' : 'hover:bg-accent'}`}
             >
               {p}
