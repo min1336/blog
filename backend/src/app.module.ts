@@ -21,7 +21,7 @@ import { UploadModule } from './upload/upload.module';
       password: process.env.DB_PASSWORD || 'blogpass123',
       database: process.env.DB_DATABASE || 'blog',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     AuthModule,
