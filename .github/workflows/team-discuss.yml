@@ -15,6 +15,9 @@ jobs:
     outputs:
       roles: ${{ steps.resolve.outputs.roles }}
     steps:
+      - name: Debounce (wait for all labels to settle)
+        run: sleep 15
+
       - name: Resolve team roles
         id: resolve
         run: |
