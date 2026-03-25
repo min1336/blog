@@ -27,7 +27,8 @@ export default async function PortfolioPage({
           )}
         </div>
         <div className="w-64">
-          <Suspense>
+          {/* 검색 입력창 로딩 중 skeleton fallback */}
+          <Suspense fallback={<div className="h-10 w-full rounded-lg border bg-muted animate-pulse" />}>
             <SearchInput basePath="/portfolio" placeholder="프로젝트 검색..." />
           </Suspense>
         </div>
