@@ -76,7 +76,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
           claude_args: >-
-            --max-turns 8
+            --max-turns 20
             --allowedTools
             Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),
             Read,Glob,Grep
