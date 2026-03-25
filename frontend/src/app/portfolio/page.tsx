@@ -1,15 +1,52 @@
+import { Suspense } from 'react';
 import { getProjects } from '@/lib/api';
 import { ProjectCard } from '@/components/portfolio/project-card';
+import { SearchInput } from '@/components/blog/search-input';
 
-export default async function PortfolioPage() {
-  const res = await getProjects();
+export default async function PortfolioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ search?: string }>;
+}) {
+  const params = await searchParams;
+  const query = new URLSearchParams();
+  if (params.search) query.set('search', params.search);
+
+  const res = await getProjects(query.toString());
   const projects = res.data;
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Portfolio</h1>
+      <div className="flex items-end justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Portfolio</h1>
+          {params.search && (
+            <p className="text-sm text-muted-foreground mt-1">
+              &ldquo;{params.search}&rdquo; 검색 결과
+            </p>
+          )}
+        </div>
+        <div className="w-64">
+          <Suspense>
+            <SearchInput basePath="/portfolio" placeholder="프로젝트 검색..." />
+          </Suspense>
+        </div>
+      </div>
+
       {projects.length === 0 ? (
-        <p className="text-muted-foreground">아직 프로젝트가 없습니다.</p>
+        <div className="text-center py-16">
+          {/* 검색 중이면 검색 결과 없음, 아니면 프로젝트 없음 메시지 구분 */}
+          {params.search ? (
+            <>
+              <p className="text-muted-foreground text-lg">
+                &ldquo;{params.search}&rdquo; 검색 결과가 없습니다.
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">다른 키워드로 검색해보세요.</p>
+            </>
+          ) : (
+            <p className="text-muted-foreground">아직 프로젝트가 없습니다.</p>
+          )}
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {projects.map((project) => (

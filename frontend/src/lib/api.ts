@@ -34,8 +34,8 @@ export const getPost = (slug: string) =>
   fetchApi<Post>(`/posts/${slug}`);
 
 // Projects
-export const getProjects = () =>
-  fetchApi<Project[]>('/projects');
+export const getProjects = (params?: string) =>
+  fetchApi<Project[]>(`/projects${params ? `?${params}` : ''}`);
 
 export const getProject = (slug: string) =>
   fetchApi<Project>(`/projects/${slug}`);
