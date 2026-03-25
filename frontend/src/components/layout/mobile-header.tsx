@@ -25,7 +25,8 @@ export function MobileHeader() {
       <div className="flex items-center gap-2">
         <ThemeToggle />
         <Sheet>
-          <SheetTrigger className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent">
+          {/* @base-ui/react는 asChild 대신 render prop 패턴을 사용 (SheetClose와 동일) */}
+          <SheetTrigger render={<Button variant="ghost" size="icon" />}>
             <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="left">

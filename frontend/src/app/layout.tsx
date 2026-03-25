@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description: "웹 개발을 학습하며 배운 것들을 기록하고 공유하는 블로그",
 };
 
+// viewport 미설정 시 iOS Safari가 페이지를 데스크탑 너비(980px)로 렌더링하여 터치 좌표 어긋남 방지
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
