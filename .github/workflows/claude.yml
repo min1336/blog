@@ -1,23 +1,18 @@
-# [5] 후속 대화 - 이슈/PR에서 @claude로 추가 수정 요청, 질문, 피드백 (언어 무관)
+# [5] 후속 대화 - claude 라벨이 있는 이슈에서 댓글 달면 자동 반응
 name: Claude Interactive
 on:
   issue_comment:
     types: [created]
-  pull_request_review_comment:
-    types: [created]
-  pull_request_review:
-    types: [submitted]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}-${{ github.triggering_actor }}
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude'))
+      github.event.sender.type != 'Bot' &&
+      contains(toJSON(github.event.issue.labels.*.name), 'claude')
     runs-on: ubuntu-latest
     permissions:
       contents: write
