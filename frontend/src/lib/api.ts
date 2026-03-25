@@ -1,11 +1,18 @@
 import type { ApiResponse, Post, Project, Comment, Category, Tag } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const isServer = typeof window === 'undefined';
+
+function getBaseUrl(path: string) {
+  if (isServer) return `${BACKEND_URL}/api${path}`;
+  return `/api/proxy${path}`;
+}
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<ApiResponse<T>> {
   try {
-    const res = await fetch(`${API_URL}/api${path}`, {
+    const res = await fetch(getBaseUrl(path), {
       cache: 'no-store',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...options?.headers },
       ...options,
     });
@@ -91,7 +98,8 @@ export const deleteProject = (slug: string) =>
 export const uploadImage = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_URL}/api/upload`, {
+  const url = isServer ? `${BACKEND_URL}/api/upload` : '/api/proxy/upload';
+  const res = await fetch(url, {
     method: 'POST',
     credentials: 'include',
     body: formData,
