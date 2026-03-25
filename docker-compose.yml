@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend
+    image: ghcr.io/min1336/blog-backend:latest
     ports:
       - "4000:4000"
     depends_on:
