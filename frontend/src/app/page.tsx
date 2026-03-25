@@ -14,15 +14,19 @@ export default async function HomePage() {
   const projects = projectsRes.data.slice(0, 3);
 
   return (
-    <div>
-      <section className="mb-12">
-        <h1 className="text-3xl font-bold mb-2">Welcome</h1>
-        <p className="text-muted-foreground">
-          개발 학습 기록과 프로젝트를 공유하는 블로그입니다.
+    <div className="max-w-4xl mx-auto">
+      <section className="mb-16 pt-8">
+        <p className="text-sm font-medium text-muted-foreground mb-3 tracking-wide uppercase">Welcome</p>
+        <h1 className="text-4xl font-bold mb-4 leading-tight">
+          배우고, 만들고,<br />기록합니다.
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-lg">
+          웹 개발을 학습하며 알게 된 것들을 정리하고,
+          직접 만든 프로젝트를 공유하는 공간입니다.
         </p>
       </section>
 
-      <section className="mb-12">
+      <section className="mb-16">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Recent Posts</h2>
           <Link

@@ -20,7 +20,7 @@ export function MobileHeader() {
   return (
     <header className="md:hidden flex items-center justify-between p-4 border-b bg-background">
       <Link href="/" className="font-bold text-lg">
-        My Blog
+        Min&apos;s Dev Blog
       </Link>
       <div className="flex items-center gap-2">
         <ThemeToggle />
