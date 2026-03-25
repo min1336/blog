@@ -5,6 +5,16 @@ import { Project } from './project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
+// 검색 최대 길이 제한
+const MAX_SEARCH_LENGTH = 100;
+
+/**
+ * LIKE 쿼리에서 와일드카드 문자(%, _, \)를 이스케이프하여 SQL 인젝션 방지
+ */
+function escapeLike(str: string): string {
+  return str.replace(/[%_\\]/g, '\\$&');
+}
+
 @Injectable()
 export class ProjectsService {
   constructor(
@@ -21,11 +31,13 @@ export class ProjectsService {
       qb.andWhere('project.published = :published', { published: true });
     }
 
-    // title 또는 description 대상 LIKE 검색 (SQL Injection 방지: 파라미터 바인딩 사용)
+    // title 또는 description 대상 LIKE 검색 (SQL Injection 방지: 파라미터 바인딩 + 와일드카드 이스케이프)
     if (search) {
+      // 서비스 레벨에서 길이 제한 적용
+      const safeSearch = search.slice(0, MAX_SEARCH_LENGTH);
       qb.andWhere(
         '(project.title LIKE :search OR project.description LIKE :search)',
-        { search: `%${search}%` },
+        { search: `%${escapeLike(safeSearch)}%` },
       );
     }
 

@@ -4,6 +4,21 @@ import { PostCard } from '@/components/blog/post-card';
 import { SearchInput } from '@/components/blog/search-input';
 import type { Post, Category } from '@/lib/types';
 
+/**
+ * 페이지네이션 URL 생성 헬퍼 — 현재 필터(category, tag, search)를 유지하며 page만 변경
+ */
+function buildPageUrl(
+  page: number,
+  params: { category?: string; tag?: string; search?: string },
+): string {
+  const qs = new URLSearchParams();
+  qs.set('page', String(page));
+  if (params.category) qs.set('category', params.category);
+  if (params.tag) qs.set('tag', params.tag);
+  if (params.search) qs.set('search', params.search);
+  return `/blog?${qs.toString()}`;
+}
+
 export default async function BlogPage({
   searchParams,
 }: {
@@ -37,7 +52,8 @@ export default async function BlogPage({
           )}
         </div>
         <div className="w-64">
-          <Suspense>
+          {/* 검색 입력창 로딩 중 skeleton fallback */}
+          <Suspense fallback={<div className="h-10 w-full rounded-lg border bg-muted animate-pulse" />}>
             <SearchInput />
           </Suspense>
         </div>
@@ -93,7 +109,7 @@ export default async function BlogPage({
           {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
             <a
               key={p}
-              href={`/blog?page=${p}${params.category ? `&category=${params.category}` : ''}${params.search ? `&search=${encodeURIComponent(params.search)}` : ''}${params.tag ? `&tag=${encodeURIComponent(params.tag)}` : ''}`}
+              href={buildPageUrl(p, params)}
               className={`w-9 h-9 flex items-center justify-center rounded-lg border text-sm transition-colors ${p === meta.page ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border-transparent' : 'hover:bg-accent'}`}
             >
               {p}

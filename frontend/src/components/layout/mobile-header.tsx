@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Menu, BookOpen, Briefcase, User, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/common/theme-toggle';
+import { SearchInput } from '@/components/blog/search-input';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -17,31 +18,12 @@ const navItems = [
 
 export function MobileHeader() {
   const pathname = usePathname();
-  const router = useRouter();
   // 검색창 표시 여부 상태
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
 
   // 현재 경로에 맞는 검색 대상 결정
   const searchBasePath = pathname.startsWith('/portfolio') ? '/portfolio' : '/blog';
   const searchPlaceholder = pathname.startsWith('/portfolio') ? '프로젝트 검색...' : '글 검색...';
-
-  function handleSearchSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = searchValue.trim();
-    if (trimmed) {
-      router.push(`${searchBasePath}?search=${encodeURIComponent(trimmed)}`);
-    } else {
-      router.push(searchBasePath);
-    }
-    setSearchOpen(false);
-    setSearchValue('');
-  }
-
-  function handleSearchClose() {
-    setSearchOpen(false);
-    setSearchValue('');
-  }
 
   return (
     <header className="md:hidden flex flex-col border-b bg-background">
@@ -88,33 +70,10 @@ export function MobileHeader() {
         </div>
       </div>
 
-      {/* 검색창 확장 영역 */}
+      {/* 검색창 확장 영역 — 기존 SearchInput 컴포넌트 재사용 (길이 제한, 초기화 로직 공유) */}
       {searchOpen && (
         <div className="px-4 pb-3">
-          <form onSubmit={handleSearchSubmit} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder={searchPlaceholder}
-              value={searchValue}
-              onChange={(e) => {
-                if (e.target.value.length <= 100) setSearchValue(e.target.value);
-              }}
-              maxLength={100}
-              autoFocus
-              className="w-full pl-10 pr-8 py-2 rounded-lg border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            {searchValue && (
-              <button
-                type="button"
-                onClick={handleSearchClose}
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full hover:bg-accent text-muted-foreground"
-                aria-label="검색어 초기화"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </form>
+          <SearchInput basePath={searchBasePath} placeholder={searchPlaceholder} />
         </div>
       )}
     </header>
