@@ -25,15 +25,16 @@ jobs:
           claude_args: >-
             --max-turns 15
             --allowedTools
-            mcp__github__get_issue,mcp__github__list_issues,mcp__github__search_issues,
-            mcp__github__create_issue,mcp__github__create_issue_comment,mcp__github__update_issue,
+            Bash(gh issue:*),Bash(gh search:*),Bash(gh label:*),
             Bash(gh pr list:*),Bash(gh pr view:*),Bash(git log:*),
             Read,Glob,Grep
+        env:
+          GH_TOKEN: ${{ github.token }}
           prompt: |
             주간 유지보수 작업을 수행하세요.
 
             ## 1. Stale 이슈 정리
-            mcp__github__list_issues로 열린 이슈 목록을 가져오세요.
+            `gh issue list -R ${{ github.repository }} --state open` 으로 열린 이슈 목록을 가져오세요.
             - 30일 이상 활동 없는 이슈:
               → "stale" 라벨 추가
               → 댓글: "30일간 활동이 없어 stale로 표시합니다. 아직 필요한 이슈라면 댓글을 남겨주세요."

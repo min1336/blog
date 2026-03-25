@@ -9,7 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ─── 팀 라벨 확인 + 역할 목록 생성 ──────────────────────
   setup:
     if: startsWith(github.event.label.name, 'team/')
     runs-on: ubuntu-latest
@@ -21,30 +20,15 @@ jobs:
         run: |
           LABEL="${{ github.event.label.name }}"
           case "$LABEL" in
-            team/full)
-              echo 'roles=["architect","security","qa","reviewer","designer","cs","po","marketing"]' >> "$GITHUB_OUTPUT"
-              ;;
-            team/tech)
-              echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT"
-              ;;
-            team/product)
-              echo 'roles=["po","designer","cs","marketing"]' >> "$GITHUB_OUTPUT"
-              ;;
-            team/design)
-              echo 'roles=["designer","reviewer","po"]' >> "$GITHUB_OUTPUT"
-              ;;
-            team/bug)
-              echo 'roles=["security","qa","reviewer"]' >> "$GITHUB_OUTPUT"
-              ;;
-            team/docs)
-              echo 'roles=["po","marketing","reviewer"]' >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT"
-              ;;
+            team/full)    echo 'roles=["architect","security","qa","reviewer","designer","cs","po","marketing"]' >> "$GITHUB_OUTPUT" ;;
+            team/tech)    echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
+            team/product) echo 'roles=["po","designer","cs","marketing"]' >> "$GITHUB_OUTPUT" ;;
+            team/design)  echo 'roles=["designer","reviewer","po"]' >> "$GITHUB_OUTPUT" ;;
+            team/bug)     echo 'roles=["security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
+            team/docs)    echo 'roles=["po","marketing","reviewer"]' >> "$GITHUB_OUTPUT" ;;
+            *)            echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
           esac
 
-  # ─── 선별된 팀원이 동시에 분석 ──────────────────────────
   analyze:
     needs: setup
     runs-on: ubuntu-latest
@@ -67,177 +51,29 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
           claude_args: >-
             --max-turns 8
-            --allowedTools
-            Read,Glob,Grep,LS,
-            mcp__github__get_issue,mcp__github__get_issue_comments,
-            mcp__github__create_issue_comment
+            --allowedTools Read,Glob,Grep,LS,Bash(gh issue:*),Bash(gh search:*)
           prompt: |
             이슈 #${{ github.event.issue.number }}에 대해 당신의 역할로 분석하고 댓글을 작성하세요.
             먼저 이슈 내용과 프로젝트 코드를 읽고 분석하세요.
 
-            ${{ matrix.role == 'architect' && '
-            ## 🏗️ 아키텍트
-            시스템 설계 전문가입니다.
+            도구:
+            - 이슈 보기: `gh issue view ${{ github.event.issue.number }} -R ${{ github.repository }} --comments`
+            - 댓글 달기: `gh issue comment ${{ github.event.issue.number }} -R ${{ github.repository }} --body "내용"`
 
-            분석:
-            - 프로젝트의 현재 아키텍처, 디렉토리 구조 파악
-            - 이 기능의 구현 설계 (어떤 파일을 만들고/수정할지)
-            - 외부 라이브러리/서비스 필요 여부
-            - 기존 코드와의 통합 방법
-            - 확장성, 유지보수성
+            ${{ matrix.role == 'architect' && '## 🏗️ 아키텍트\n시스템 설계 전문가. 프로젝트 구조 파악, 구현 설계, 의존성, 확장성 분석.\n댓글: ## 🏗️ 아키텍트 분석' || '' }}
+            ${{ matrix.role == 'security' && '## 🛡️ 화이트해커\n보안 전문가. OWASP Top 10, 입력 검증, 인증/인가, 암호화 분석.\n댓글: ## 🛡️ 보안 분석' || '' }}
+            ${{ matrix.role == 'qa' && '## 🧪 QA 엔지니어\n품질 전문가. 테스트 시나리오(정상/엣지/실패), 회귀 위험 분석.\n댓글: ## 🧪 QA 분석' || '' }}
+            ${{ matrix.role == 'reviewer' && '## 🔍 코드 리뷰어\n코드 품질 전문가. 기존 패턴, 재사용 코드, 컨벤션, 성능 분석.\n댓글: ## 🔍 코드 리뷰어 분석' || '' }}
+            ${{ matrix.role == 'designer' && '## 🎨 디자이너\nUI/UX 전문가. 디자인 시스템, 사용자 플로우, 접근성, 반응형 분석.\n댓글: ## 🎨 디자이너 분석' || '' }}
+            ${{ matrix.role == 'cs' && '## 💬 CS\n고객 관점 전문가. 사용자 경험, 에러 메시지, FAQ, 기존 사용자 영향 분석.\n댓글: ## 💬 CS 분석' || '' }}
+            ${{ matrix.role == 'po' && '## 📋 PO\n비즈니스 전문가. 비즈니스 가치, MVP 범위, 성공 지표, 우선순위 분석.\n댓글: ## 📋 PO 분석' || '' }}
+            ${{ matrix.role == 'marketing' && '## 📢 마케팅\n성장 전문가. 사용자 유입/전환, SEO, 출시 커뮤니케이션 분석.\n댓글: ## 📢 마케팅 분석' || '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
 
-            댓글 형식:
-            ## 🏗️ 아키텍트 분석
-            ### 현재 구조
-            ### 제안 설계
-            ### 의존성
-            ### 주의사항
-            ' || '' }}
-
-            ${{ matrix.role == 'security' && '
-            ## 🛡️ 화이트해커
-            보안 전문가입니다. 공격자의 관점에서 생각합니다.
-
-            분석:
-            - 이 기능의 보안 위협 (OWASP Top 10)
-            - 입력 검증 필요 지점
-            - 인증/인가 요구사항
-            - 데이터 암호화, API 보안
-            - 기존 코드의 보안 패턴 확인
-
-            댓글 형식:
-            ## 🛡️ 보안 분석
-            ### 위협 모델
-            ### 필수 보안 조치
-            ### 권장 사항
-            ### 기존 보안 패턴
-            ' || '' }}
-
-            ${{ matrix.role == 'qa' && '
-            ## 🧪 QA 엔지니어
-            품질 보증 전문가입니다.
-
-            분석:
-            - 테스트 시나리오 (정상/엣지/실패)
-            - 기존 기능 회귀 위험
-            - 프로젝트 테스트 패턴 확인
-
-            댓글 형식:
-            ## 🧪 QA 분석
-            ### 테스트 시나리오
-            - [ ] [시나리오 1]
-            ### 엣지 케이스
-            - [ ] [케이스 1]
-            ### 실패 케이스
-            - [ ] [케이스 1]
-            ### 회귀 테스트
-            ' || '' }}
-
-            ${{ matrix.role == 'reviewer' && '
-            ## 🔍 코드 리뷰어
-            코드 품질 전문가입니다.
-
-            분석:
-            - 기존 코드 패턴, 컨벤션, 스타일
-            - 재사용 가능한 기존 코드
-            - 구현 시 따라야 할 패턴
-            - 성능 고려사항
-
-            댓글 형식:
-            ## 🔍 코드 리뷰어 분석
-            ### 기존 패턴
-            ### 재사용 가능 코드
-            ### 구현 가이드라인
-            ### 성능 고려사항
-            ' || '' }}
-
-            ${{ matrix.role == 'designer' && '
-            ## 🎨 디자이너
-            UI/UX 전문가입니다.
-
-            분석:
-            - 현재 프로젝트의 디자인 시스템/컴포넌트 파악
-            - 이 기능의 사용자 플로우 설계
-            - UI 컴포넌트 구성 제안
-            - 접근성(a11y) 요구사항
-            - 반응형 디자인 고려사항
-            - 기존 디자인 패턴과의 일관성
-
-            댓글 형식:
-            ## 🎨 디자이너 분석
-            ### 현재 디자인 시스템
-            ### 사용자 플로우
-            ### UI 구성 제안
-            ### 접근성 요구사항
-            ### 반응형 고려사항
-            ' || '' }}
-
-            ${{ matrix.role == 'cs' && '
-            ## 💬 CS (고객지원)
-            고객 관점 전문가입니다. 실제 사용자가 겪을 경험을 대변합니다.
-
-            분석:
-            - 사용자가 이 기능을 어떻게 이해할지
-            - 에러 상황에서 사용자에게 보여줄 메시지
-            - 혼란스러울 수 있는 UI/문구
-            - FAQ에 추가할 내용
-            - 기존 사용자에게 미칠 영향 (breaking change?)
-            - 도움말/온보딩 필요 여부
-
-            댓글 형식:
-            ## 💬 CS 분석
-            ### 사용자 경험 예상
-            ### 에러 메시지 제안
-            ### 혼란 가능 지점
-            ### FAQ/도움말 필요 사항
-            ### 기존 사용자 영향
-            ' || '' }}
-
-            ${{ matrix.role == 'po' && '
-            ## 📋 프로덕트 오너
-            비즈니스/제품 전략 전문가입니다.
-
-            분석:
-            - 이 기능의 비즈니스 가치
-            - MVP 범위 정의 (필수 vs 나중에)
-            - 성공 지표 (어떻게 측정할지)
-            - 경쟁사 대비 차별점
-            - 기존 기능과의 관계
-            - 우선순위 판단 근거
-
-            댓글 형식:
-            ## 📋 PO 분석
-            ### 비즈니스 가치
-            ### MVP 범위
-            - 필수: [항목]
-            - 나중에: [항목]
-            ### 성공 지표
-            ### 우선순위 근거
-            ' || '' }}
-
-            ${{ matrix.role == 'marketing' && '
-            ## 📢 마케팅
-            성장/마케팅 전문가입니다.
-
-            분석:
-            - 이 기능이 사용자 유입/전환에 미치는 영향
-            - SEO 관련 고려사항 (URL 구조, 메타 태그, 콘텐츠)
-            - 기능 출시 시 마케팅 포인트
-            - 사용자 커뮤니케이션 (공지, changelog, 릴리즈 노트)
-            - 경쟁 우위 포인트
-            - 소셜 미디어/블로그 소재 가능성
-
-            댓글 형식:
-            ## 📢 마케팅 분석
-            ### 성장 영향
-            ### SEO 고려사항
-            ### 출시 커뮤니케이션
-            ### 마케팅 포인트
-            ' || '' }}
-
-  # ─── 팀장: 전원 의견 종합 → 최종 판정 ──────────────────
   team-lead:
     needs: [setup, analyze]
+    if: always() && needs.setup.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -254,71 +90,33 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
           claude_args: >-
             --max-turns 8
-            --allowedTools
-            Read,Glob,Grep,LS,
-            mcp__github__get_issue,mcp__github__get_issue_comments,
-            mcp__github__create_issue_comment,mcp__github__update_issue
+            --allowedTools Read,Glob,Grep,LS,Bash(gh issue:*),Bash(gh label:*)
           prompt: |
             당신은 👔 **팀장**입니다.
             이슈 #${{ github.event.issue.number }}에 대해 팀원들의 분석을 종합하세요.
 
-            ## 절차
+            도구:
+            - 댓글 읽기: `gh issue view ${{ github.event.issue.number }} -R ${{ github.repository }} --comments`
+            - 댓글 달기: `gh issue comment ${{ github.event.issue.number }} -R ${{ github.repository }} --body "내용"`
+            - 라벨 추가: `gh issue edit ${{ github.event.issue.number }} --add-label "라벨" -R ${{ github.repository }}`
+            - 라벨 생성: `gh label create "이름" --color "색상" -R ${{ github.repository }}`
 
-            ### 1. 팀원 의견 수집
-            mcp__github__get_issue_comments로 모든 댓글을 읽으세요.
-            각 역할의 분석을 정리합니다.
+            절차:
+            1. `gh issue view`로 팀원 댓글 모두 읽기
+            2. 의견 종합: 충돌 조정, 범위 확정, 보안/테스트 필수항목 선별
+            3. 최종 댓글 작성 (아래 형식)
+            4. 라벨: 승인→"approved" / 보류→"on-hold" / 추가정보→"needs-info"
 
-            ### 2. 종합 판단
-            - 팀원 간 의견 충돌 확인 및 조정
-            - 구현 범위 확정 (PO의 MVP 범위 참고)
-            - 보안 요구사항 필수/선택 구분 (화이트해커 의견)
-            - 테스트 시나리오 필수/선택 구분 (QA 의견)
-            - UI/UX 방향 확정 (디자이너 의견)
-            - 사용자 커뮤니케이션 계획 (CS + 마케팅 의견)
-
-            ### 3. 최종 댓글 작성
-
+            댓글 형식:
             ## 👔 팀장 최종 판정
-
-            ### 결정: ✅ 구현 승인 / ❌ 보류 / ❓ 추가 정보 필요
-
-            ### 참여 팀원
-            [이번에 분석에 참여한 역할 목록]
-
+            ### 결정: ✅ 구현 승인 (또는 ❌ 보류 / ❓ 추가 정보 필요)
             ### 구현 지시서
-
-            #### 필수 구현 (아키텍트 설계 기반)
-            1. [항목]
-
-            #### 필수 보안 조치 (화이트해커)
-            1. [항목]
-
-            #### 필수 테스트 (QA)
-            1. [항목]
-
-            #### 코드 컨벤션 (리뷰어)
-            1. [항목]
-
-            #### UI/UX 요구사항 (디자이너) — 해당 시
-            1. [항목]
-
-            #### 사용자 메시지/문구 (CS) — 해당 시
-            1. [항목]
-
-            #### MVP 범위 (PO) — 해당 시
-            - 이번에 구현: [항목]
-            - 다음에: [항목]
-
-            #### SEO/마케팅 (마케팅) — 해당 시
-            1. [항목]
-
-            ### 범위 외 (이번에 안 함)
-            [명시적 제외 항목]
-
+            #### 필수 구현
+            #### 필수 보안 조치
+            #### 필수 테스트
+            #### 코드 컨벤션
+            ### 범위 외
             ---
             🤖 이 지시서를 기반으로 자동 구현이 시작됩니다.
-
-            ### 4. 라벨 업데이트
-            - ✅ 승인 → "approved" 라벨 추가
-            - ❌ 보류 → "on-hold" 라벨 추가
-            - ❓ 추가 정보 → "needs-info" 라벨 추가
+        env:
+          GH_TOKEN: ${{ github.token }}
