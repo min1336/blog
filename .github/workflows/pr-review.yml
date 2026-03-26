@@ -3,22 +3,45 @@ name: Team PR Review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "재리뷰할 PR 번호"
+        required: true
 
 jobs:
   # ─── PR에 연결된 이슈에서 팀 라벨 읽기 ──────────────────
   setup:
-    if: "!github.event.pull_request.draft"
+    if: github.event_name == 'workflow_dispatch' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     outputs:
       roles: ${{ steps.resolve.outputs.roles }}
+      pr_number: ${{ steps.resolve.outputs.pr_number }}
     steps:
       - name: Get team from linked issue
         id: resolve
         uses: actions/github-script@v7
         with:
           script: |
+            // workflow_dispatch인 경우 PR 번호에서 정보를 가져옴
+            const prNumber = context.payload.inputs?.pr_number
+              ? parseInt(context.payload.inputs.pr_number)
+              : context.payload.pull_request?.number;
+
+            let body = '';
+            if (context.payload.pull_request) {
+              body = context.payload.pull_request.body || '';
+            } else if (prNumber) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              body = pr.body || '';
+            }
+            core.setOutput('pr_number', prNumber);
+
             // PR 본문에서 "Closes #N" 패턴으로 이슈 번호 추출
-            const body = context.payload.pull_request.body || '';
             const match = body.match(/[Cc]loses?\s+#(\d+)/);
 
             let roles = '["security","qa","reviewer"]'; // 기본: team/bug
@@ -83,7 +106,7 @@ jobs:
             Read,Glob,Grep
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR NUMBER: ${{ needs.setup.outputs.pr_number || github.event.pull_request.number }}
 
             이 PR을 당신의 역할로 리뷰하세요.
             코드 라인별 피드백은 `mcp__github_inline_comment__create_inline_comment`을 사용하고,
@@ -180,7 +203,7 @@ jobs:
           prompt: |
             👔 **팀장**으로서 팀원들의 PR 리뷰를 종합하세요.
 
-            `gh pr view ${{ github.event.pull_request.number }} --comments --json comments`
+            `gh pr view ${{ needs.setup.outputs.pr_number || github.event.pull_request.number }} --comments --json comments`
             로 리뷰 코멘트를 모두 읽으세요.
 
             PR 코멘트로 종합 판정 작성:

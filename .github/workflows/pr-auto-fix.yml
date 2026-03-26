@@ -103,3 +103,14 @@ jobs:
             자동 재리뷰가 시작됩니다.
         env:
           GH_TOKEN: ${{ github.token }}
+
+      # GITHUB_TOKEN push는 후속 워크플로우를 트리거하지 않으므로
+      # workflow_dispatch로 직접 재리뷰 호출
+      - name: Trigger re-review
+        if: steps.pr-info.outputs.fix_count < 2
+        run: |
+          gh workflow run "Team PR Review" \
+            -R ${{ github.repository }} \
+            -f pr_number=${{ github.event.issue.number }}
+        env:
+          GH_TOKEN: ${{ github.token }}
