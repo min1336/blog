@@ -11,7 +11,7 @@ on:
 
 concurrency:
   group: "deploy-prod-${{ github.ref }}"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
@@ -24,13 +24,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Get Github Actions IP
         id: ip
         uses: haythem/public-ip@v1.2
 
+      # TODO: AWS OIDC 인증으로 전환 권장 (장기 Access Key 대신 단기 토큰)
+      # permissions에 id-token: write 추가 + role-to-assume 설정 필요
+      # https://github.com/aws-actions/configure-aws-credentials#oidc
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -38,14 +43,25 @@ jobs:
 
       - name: Add Github Actions IP to Security group
         run: |
-          aws ec2 authorize-security-group-ingress \
+          OUTPUT=$(aws ec2 authorize-security-group-ingress \
             --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32 2>&1 | grep -v "already exists" || true
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32 2>&1) || {
+            if echo "$OUTPUT" | grep -q "already exists"; then
+              echo "Security group rule already exists, skipping"
+            else
+              echo "::error::Failed to add security group rule: $OUTPUT"
+              exit 1
+            fi
+          }
 
       - name: Wait for Security Group rule propagation
-        run: sleep 10
+        run: |
+          for i in 1 2 3; do
+            sleep 5
+            echo "Waiting for propagation... (attempt $i/3)"
+          done
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -59,7 +75,9 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/min1336/blog-backend:latest
+          tags: |
+            ghcr.io/min1336/blog-backend:latest
+            ghcr.io/min1336/blog-backend:sha-${{ github.sha }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
@@ -72,12 +90,27 @@ jobs:
             git pull
             docker-compose pull backend
             docker-compose up -d
+            echo "Waiting for backend to start..."
+            sleep 10
+            if docker-compose ps backend | grep -qE "(Up|running)"; then
+              echo "Health check passed: backend is running"
+            else
+              echo "Health check FAILED: backend is not running"
+              docker-compose logs --tail=50 backend
+              exit 1
+            fi
 
       - name: Remove Github Actions IP from Security Group
         if: always()
         run: |
-          aws ec2 revoke-security-group-ingress \
+          OUTPUT=$(aws ec2 revoke-security-group-ingress \
             --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
             --protocol tcp \
             --port 22 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32 2>&1 | grep -v "does not exist" || true
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32 2>&1) || {
+            if echo "$OUTPUT" | grep -q "does not exist"; then
+              echo "Security group rule already removed"
+            else
+              echo "::warning::Failed to remove security group rule: $OUTPUT"
+            fi
+          }
