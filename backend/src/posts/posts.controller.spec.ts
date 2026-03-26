@@ -68,12 +68,11 @@ describe('PostsController', () => {
       );
     });
 
-    it('limit=0 입력 시 기본값 10으로 폴백된다 (parseInt("0") || 10 동작)', async () => {
-      // parseInt('0') = 0 → falsy → || 10 → 10
+    it('limit=0 입력 시 최소값 1로 보정된다 (isNaN 패턴: parseInt("0")=0 → Math.max(1,0)=1)', async () => {
       await controller.findAll(undefined, '0');
 
       expect(mockPostsService.findAll).toHaveBeenCalledWith(
-        expect.objectContaining({ limit: 10 }),
+        expect.objectContaining({ limit: 1 }),
       );
     });
 

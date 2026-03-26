@@ -36,10 +36,11 @@ export class PostsController {
     @Query('tag') tag?: string,
     @Query('search') search?: string,
   ) {
-    // 비숫자 page 입력(NaN) 방어: parseInt 실패 시 1로 폴백
-    const safePage = Math.max(1, parseInt(page || '1') || 1);
-    // limit 상한 100 적용: 대량 조회 요청 차단
-    const safeLimit = Math.min(100, Math.max(1, parseInt(limit || '10') || 10));
+    // 비숫자 입력 방어 및 page 상한(1000) + limit 상한(100) 적용
+    const parsedPage = parseInt(page ?? '1', 10);
+    const safePage = Math.min(1000, Math.max(1, isNaN(parsedPage) ? 1 : parsedPage));
+    const parsedLimit = parseInt(limit ?? '10', 10);
+    const safeLimit = Math.min(100, Math.max(1, isNaN(parsedLimit) ? 10 : parsedLimit));
 
     return this.postsService.findAll({
       page: safePage,
