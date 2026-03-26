@@ -1,4 +1,4 @@
-# [3] 자동 구현 - 팀장의 "approved" 라벨 후 구현 지시서 기반으로 코드 작성
+# [3] 자동 구현 - 팀장의 "stage/approved" 라벨 후 구현 지시서 기반으로 코드 작성
 name: Claude Auto-Implement
 on:
   issues:
@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   implement:
-    if: github.event.label.name == 'approved'
+    if: github.event.label.name == 'stage/approved'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,17 +19,36 @@ jobs:
       id-token: write
     timeout-minutes: 30
     steps:
+      - name: Check for existing PR
+        id: check-pr
+        run: |
+          PR_COUNT=$(gh pr list -R ${{ github.repository }} --search "Closes #${{ github.event.issue.number }}" --state open --json number --jq 'length')
+          echo "has_pr=$([[ "$PR_COUNT" -gt 0 ]] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Skip if PR already exists
+        if: steps.check-pr.outputs.has_pr == 'true'
+        run: |
+          echo "::notice::PR already exists for issue #${{ github.event.issue.number }}, skipping implementation"
+          exit 0
+
       - name: Debounce (wait for all labels to settle)
+        if: steps.check-pr.outputs.has_pr != 'true'
         run: sleep 15
 
       - uses: actions/checkout@v4
+        if: steps.check-pr.outputs.has_pr != 'true'
         with:
           fetch-depth: 1
 
       - uses: anthropics/claude-code-action@v1
+        if: steps.check-pr.outputs.has_pr != 'true'
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
           allowed_bots: "claude[bot],github-actions[bot]"
+          track_progress: "true"
+          use_commit_signing: "true"
           claude_args: >-
             --max-turns 50
             --allowedTools

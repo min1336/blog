@@ -1,22 +1,23 @@
 # [5] 후속 대화 - claude 라벨이 있는 이슈에서 댓글 달면 자동 반응
+# 단, needs-enrichment 이슈는 issue-enrich-reply.yml이 담당
 name: Claude Interactive
 on:
   issue_comment:
     types: [created]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number }}-${{ github.triggering_actor }}
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
   cancel-in-progress: true
 
 jobs:
   claude:
     if: |
       github.event.sender.type != 'Bot' &&
-      contains(toJSON(github.event.issue.labels.*.name), 'claude')
+      contains(toJSON(github.event.issue.labels.*.name), 'bot/claude') &&
+      !contains(toJSON(github.event.issue.labels.*.name), 'stage/enriching')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
       issues: write
       id-token: write
     timeout-minutes: 30
@@ -28,3 +29,4 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+          exclude_comments_by_actor: "claude[bot]"

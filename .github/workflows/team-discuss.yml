@@ -15,6 +15,8 @@ jobs:
     outputs:
       roles: ${{ steps.resolve.outputs.roles }}
     steps:
+      # 라벨이 여러 개 동시에 추가될 때 중복 실행을 방지하는 debounce
+      # concurrency.cancel-in-progress: true와 함께 동작하여 마지막 실행만 유지
       - name: Debounce (wait for all labels to settle)
         run: sleep 15
 
@@ -108,7 +110,7 @@ jobs:
             1. `gh issue view`로 팀원 댓글 모두 읽기
             2. 의견 종합: 충돌 조정, 범위 확정, 보안/테스트 필수항목 선별
             3. 최종 댓글 작성 (아래 형식)
-            4. 라벨: 승인→"approved" / 보류→"on-hold" / 추가정보→"needs-info"
+            4. 라벨: 승인→"stage/approved" / 보류→"stage/on-hold" / 추가정보→"stage/needs-info"
 
             댓글 형식:
             ## 👔 팀장 최종 판정
