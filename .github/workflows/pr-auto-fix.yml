@@ -11,10 +11,10 @@ concurrency:
 
 jobs:
   auto-fix:
-    # PR 댓글 + 팀장 판정 키워드 감지
+    # PR 댓글 + 팀장 판정 키워드 감지 (봇/사람 모두 허용)
     if: |
       github.event.issue.pull_request &&
-      github.event.sender.login == 'claude[bot]' &&
+      contains(github.event.comment.body, '팀장 종합 판정') &&
       (contains(github.event.comment.body, '수정 후 머지') || contains(github.event.comment.body, '수정 필요'))
     runs-on: ubuntu-latest
     permissions:
