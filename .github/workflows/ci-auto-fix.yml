@@ -2,14 +2,14 @@
 name: Auto-Fix CI Failures
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["Deploy Backend"]
     types: [completed]
 
 jobs:
   auto-fix:
     if: |
       github.event.workflow_run.conclusion == 'failure' &&
-      github.event.workflow_run.pull_requests[0] &&
+      github.event.workflow_run.pull_requests[0] != null &&
       !startsWith(github.event.workflow_run.head_branch, 'claude-auto-fix-')
     runs-on: ubuntu-latest
     permissions:
@@ -25,51 +25,16 @@ jobs:
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
 
-      - name: Collect CI failure logs
-        id: failure-info
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const run = await github.rest.actions.getWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }}
-            });
-
-            const jobs = await github.rest.actions.listJobsForWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{ github.event.workflow_run.id }},
-              filter: 'latest'
-            });
-
-            const failedJobs = jobs.data.jobs.filter(j => j.conclusion === 'failure');
-            const logs = [];
-
-            for (const job of failedJobs.slice(0, 3)) {
-              try {
-                const log = await github.rest.actions.downloadJobLogsForWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  job_id: job.id
-                });
-                logs.push({ job: job.name, log: log.data.slice(-3000) });
-              } catch (e) {
-                logs.push({ job: job.name, log: 'Log unavailable' });
-              }
-            }
-
-            core.setOutput('error_logs', JSON.stringify(logs));
-            core.setOutput('pr_number', run.data.pull_requests[0]?.number || '');
-            core.setOutput('failed_jobs', failedJobs.map(j => j.name).join(', '));
-            core.setOutput('run_url', run.data.html_url);
-
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+          additional_permissions: "actions: read"
           claude_args: >-
             --max-turns 15
             --allowedTools
+            mcp__github_ci__get_ci_status,
+            mcp__github_ci__get_workflow_run_details,
+            mcp__github_ci__download_job_log,
             Edit,MultiEdit,Write,Read,Glob,Grep,LS,
             Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(yarn:*),Bash(pnpm:*),
             Bash(pip:*),Bash(python:*),Bash(poetry:*),Bash(uv:*),
@@ -79,24 +44,22 @@ jobs:
           prompt: |
             CI가 실패했습니다. 에러를 분석하고 수정하세요.
 
-            CI 실행: ${{ steps.failure-info.outputs.run_url }}
-            실패한 작업: ${{ steps.failure-info.outputs.failed_jobs }}
-            PR: #${{ steps.failure-info.outputs.pr_number }}
+            REPO: ${{ github.repository }}
+            Workflow Run ID: ${{ github.event.workflow_run.id }}
+            브랜치: ${{ github.event.workflow_run.head_branch }}
 
-            에러 로그:
-            ${{ steps.failure-info.outputs.error_logs }}
-
-            ## 수정 절차
-            1. 프로젝트의 언어/프레임워크/도구 파악
-            2. 에러 로그를 분석하여 실패 원인 파악
-            3. 관련 코드를 찾아 수정
-            4. 수정 후 프로젝트의 도구로 검증:
+            ## 분석 절차
+            1. `mcp__github_ci__get_workflow_run_details`로 실패한 작업 확인
+            2. `mcp__github_ci__download_job_log`로 에러 로그 상세 분석
+            3. 프로젝트의 언어/프레임워크/도구 파악
+            4. 에러 원인에 해당하는 코드를 찾아 수정
+            5. 수정 후 프로젝트의 도구로 검증:
                - 테스트 실행
                - 린트 실행 (있는 경우)
                - 타입 체크 실행 (있는 경우)
-            5. 수정사항을 동일 브랜치에 커밋
+            6. 수정사항을 동일 브랜치에 커밋
                - 커밋 메시지: "fix: CI 실패 수정 - [원인 요약]"
-            6. PR에 댓글로 수정 내용 작성:
+            7. PR에 댓글로 수정 내용 작성:
                - 실패 원인
                - 수정 내용
                - 검증 결과
