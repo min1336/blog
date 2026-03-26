@@ -49,7 +49,8 @@ export class PostsService {
       // 서비스 레벨에서 길이 제한 적용
       const safeSearch = search.slice(0, MAX_SEARCH_LENGTH);
       qb.andWhere(
-        '(post.title LIKE :search OR post.summary LIKE :search)',
+        // COALESCE로 summary가 NULL인 경우 빈 문자열로 대체 — NULL OR 조건 묵시적 제외 방지
+        '(post.title LIKE :search OR COALESCE(post.summary, \'\') LIKE :search)',
         { search: `%${escapeLike(safeSearch)}%` },
       );
     }

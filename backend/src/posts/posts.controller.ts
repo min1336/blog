@@ -36,9 +36,14 @@ export class PostsController {
     @Query('tag') tag?: string,
     @Query('search') search?: string,
   ) {
+    // 비숫자 page 입력(NaN) 방어: parseInt 실패 시 1로 폴백
+    const safePage = Math.max(1, parseInt(page || '1') || 1);
+    // limit 상한 100 적용: 대량 조회 요청 차단
+    const safeLimit = Math.min(100, Math.max(1, parseInt(limit || '10') || 10));
+
     return this.postsService.findAll({
-      page: page ? +page : 1,
-      limit: limit ? +limit : 10,
+      page: safePage,
+      limit: safeLimit,
       category,
       tag,
       search,

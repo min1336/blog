@@ -21,7 +21,9 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<ApiResp
       throw new Error(json.error?.message || 'API Error');
     }
     return json;
-  } catch {
+  } catch (e) {
+    // 운영 추적용 에러 로그 — API 오류가 0건으로 둔갑하는 현상 방지
+    console.error('[fetchApi]', path, e);
     return { success: false, data: [] as unknown as T, message: 'API unavailable' };
   }
 }
