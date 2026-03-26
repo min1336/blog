@@ -32,7 +32,15 @@ jobs:
             주간 유지보수 작업을 수행하세요.
 
             ## 1. Stale 이슈 정리
-            `gh issue list -R ${{ github.repository }} --state open` 으로 열린 이슈 목록을 가져오세요.
+            `gh issue list -R ${{ github.repository }} --state open --json number,title,labels,updatedAt` 으로 열린 이슈 목록을 가져오세요.
+
+            **보호 규칙: 아래 라벨이 있는 이슈는 stale 처리/자동 닫기에서 제외:**
+            - `priority/high` — 중요 이슈 보호
+            - `stage/approved` — 구현 승인된 이슈
+            - `stage/implementing` — 구현 중인 이슈
+            (대신 리마인더 댓글만 작성: "이 이슈는 중요하지만 N일간 활동이 없습니다.")
+
+            보호 대상이 아닌 이슈만:
             - 30일 이상 활동 없는 이슈:
               → "status/stale" 라벨 추가
               → 댓글: "30일간 활동이 없어 stale로 표시합니다. 아직 필요한 이슈라면 댓글을 남겨주세요."

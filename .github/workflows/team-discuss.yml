@@ -20,19 +20,73 @@ jobs:
       - name: Debounce (wait for all labels to settle)
         run: sleep 15
 
-      - name: Resolve team roles
+      - name: Assess complexity and resolve team roles
         id: resolve
-        run: |
-          LABEL="${{ github.event.label.name }}"
-          case "$LABEL" in
-            team/full)    echo 'roles=["architect","security","qa","reviewer","designer","cs","po","marketing"]' >> "$GITHUB_OUTPUT" ;;
-            team/tech)    echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
-            team/product) echo 'roles=["po","designer","cs","marketing"]' >> "$GITHUB_OUTPUT" ;;
-            team/design)  echo 'roles=["designer","reviewer","po"]' >> "$GITHUB_OUTPUT" ;;
-            team/bug)     echo 'roles=["security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
-            team/docs)    echo 'roles=["po","marketing","reviewer"]' >> "$GITHUB_OUTPUT" ;;
-            *)            echo 'roles=["architect","security","qa","reviewer"]' >> "$GITHUB_OUTPUT" ;;
-          esac
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // 이슈 정보 가져오기
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number
+            });
+
+            const body = (issue.title + ' ' + (issue.body || '')).toLowerCase();
+            const labels = issue.labels.map(l => l.name);
+            const teamLabel = '${{ github.event.label.name }}';
+
+            // 팀별 전체 역할 매핑
+            const fullTeams = {
+              'team/full':    ['architect','security','qa','reviewer','designer','cs','po','marketing'],
+              'team/tech':    ['architect','security','qa','reviewer'],
+              'team/product': ['po','designer','cs','marketing'],
+              'team/design':  ['designer','reviewer','po'],
+              'team/bug':     ['security','qa','reviewer'],
+              'team/docs':    ['po','marketing','reviewer']
+            };
+
+            let roles = fullTeams[teamLabel] || ['architect','security','qa','reviewer'];
+
+            // 복잡도 평가: 단순/보통/복잡
+            let complexity = 'normal';
+
+            // 단순 판정: 짧은 이슈 + 낮은 우선순위 키워드
+            const simpleKeywords = ['오타','typo','색상','color','텍스트 변경','문구 수정','오류 메시지','readme'];
+            const isShort = (issue.body || '').length < 200;
+            const isSimpleContent = simpleKeywords.some(k => body.includes(k));
+            const isLowPriority = labels.includes('priority/low');
+
+            if ((isShort && isSimpleContent) || (isLowPriority && isSimpleContent)) {
+              complexity = 'simple';
+            }
+
+            // 복잡 판정: 여러 시스템 영향 키워드
+            const complexKeywords = ['인증','결제','마이그레이션','리팩토링','아키텍처','보안','데이터베이스','api 변경'];
+            const isHighPriority = labels.includes('priority/high');
+            const isComplexContent = complexKeywords.filter(k => body.includes(k)).length >= 2;
+
+            if (isHighPriority || isComplexContent) {
+              complexity = 'complex';
+            }
+
+            // 복잡도에 따라 역할 필터링
+            if (complexity === 'simple' && roles.length > 2) {
+              // 단순: 핵심 2명만 (reviewer + 해당 전문가 1명)
+              const priority = ['reviewer','qa','security','architect','designer','po'];
+              const filtered = priority.filter(r => roles.includes(r)).slice(0, 2);
+              roles = filtered.length >= 2 ? filtered : roles.slice(0, 2);
+            } else if (complexity === 'normal' && roles.length > 4) {
+              // 보통: 핵심 기술 역할만 (최대 4명)
+              const techRoles = ['architect','security','qa','reviewer'];
+              const filtered = roles.filter(r => techRoles.includes(r));
+              roles = filtered.length > 0 ? filtered : roles.slice(0, 4);
+            }
+            // 복잡: 전체 팀 유지
+
+            core.info(`Complexity: ${complexity}, Team: ${teamLabel}, Roles: ${JSON.stringify(roles)}`);
+            core.setOutput('roles', JSON.stringify(roles));
+            core.setOutput('complexity', complexity);
 
   analyze:
     needs: setup
@@ -122,6 +176,8 @@ jobs:
             #### 코드 컨벤션
             ### 범위 외
             ---
-            🤖 이 지시서를 기반으로 자동 구현이 시작됩니다.
+            🤖 이 지시서를 기반으로 구현 계획서 작성이 시작됩니다.
+
+            <!-- PIPELINE:{"stage":"discussed"} -->
         env:
           GH_TOKEN: ${{ github.token }}

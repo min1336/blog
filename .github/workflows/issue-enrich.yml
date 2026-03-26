@@ -132,6 +132,7 @@ jobs:
             ✅ 내용이 맞다면 `stage/spec-ready` 라벨을 추가해주세요.
 
             → `bot/claude` 라벨 추가
+            → 댓글 맨 끝에 상태 마커 추가: `<!-- PIPELINE:{"stage":"enriched","score":N} -->`
 
             ### 불충분한 경우 (7점 이하):
             댓글:
@@ -173,5 +174,6 @@ jobs:
             ✏️ 수정이 필요하면 댓글로 알려주세요.
 
             → `bot/claude` + `stage/enriching` 라벨 추가
+            → 댓글 맨 끝에 상태 마커 추가: `<!-- PIPELINE:{"stage":"enriching","score":N,"attempts":1} -->`
         env:
           GH_TOKEN: ${{ github.token }}

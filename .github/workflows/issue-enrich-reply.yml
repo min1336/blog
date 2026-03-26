@@ -47,6 +47,17 @@ jobs:
 
             ## 절차
 
+            ### 0. 시도 횟수 확인 (무한루프 방지)
+            `gh issue view ${{ github.event.issue.number }} -R ${{ github.repository }} --comments` 에서
+            "📝 추가 정보가 필요합니다" 또는 "📝 이슈 구체화 제안" 패턴이 포함된 댓글 수를 세세요.
+            **3회 이상이면 즉시:**
+            → 댓글:
+            ## ⏸️ 구체화 중단
+            구체화 시도 3회를 초과했습니다.
+            이슈 작성자가 직접 내용을 보강한 후 `stage/enriching` 라벨을 다시 추가해주세요.
+            → `stage/enriching` 라벨 제거 + `stage/on-hold` 라벨 추가
+            → **여기서 종료. 아래 절차를 진행하지 마세요.**
+
             ### 1. 채점 기준 로드
             `.github/workflows/issue-enrich.yml` 파일의 "2단계: 이슈 유형 판별 + 완성도 평가" 섹션을 읽어
             채점 기준을 확인하세요.
@@ -77,6 +88,7 @@ jobs:
             ✅ `stage/spec-ready` 라벨을 추가하면 자동 분류가 시작됩니다.
 
             → `stage/enriching` 라벨 제거
+            → 댓글 맨 끝에 상태 마커: `<!-- PIPELINE:{"stage":"enriched","score":N} -->`
 
             ### 4-B. 7점 이하이면 → 추가 질문
             댓글:
@@ -99,5 +111,7 @@ jobs:
             - 코드베이스 분석으로 추론할 수 있는 건 직접 채우세요
             - 사용자에게는 사용자만 알 수 있는 것만 질문하세요
             - 매 턴마다 진행 상황(N/10)을 보여주어 사용자가 완료까지 얼마나 남았는지 알 수 있게 하세요
+            - 추가 질문 댓글 맨 끝에 상태 마커: `<!-- PIPELINE:{"stage":"enriching","score":N,"attempts":M} -->`
+              (attempts = 이전 마커의 attempts + 1)
         env:
           GH_TOKEN: ${{ github.token }}
