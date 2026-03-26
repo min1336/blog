@@ -104,13 +104,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      # GITHUB_TOKEN push는 후속 워크플로우를 트리거하지 않으므로
-      # workflow_dispatch로 직접 재리뷰 호출
+      # GITHUB_TOKEN push/workflow_dispatch는 후속 워크플로우를 트리거하지 않으므로
+      # repository_dispatch로 재리뷰 호출 (GITHUB_TOKEN으로 가능)
       - name: Trigger re-review
         if: steps.pr-info.outputs.fix_count < 2
         run: |
-          gh workflow run "Team PR Review" \
-            -R ${{ github.repository }} \
-            -f pr_number=${{ github.event.issue.number }}
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=re-review \
+            -f "client_payload[pr_number]=${{ github.event.issue.number }}"
         env:
           GH_TOKEN: ${{ github.token }}

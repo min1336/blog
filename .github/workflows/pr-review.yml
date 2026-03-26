@@ -8,6 +8,8 @@ on:
       pr_number:
         description: "재리뷰할 PR 번호"
         required: true
+  repository_dispatch:
+    types: [re-review]
 
 jobs:
   # ─── PR에 연결된 이슈에서 팀 라벨 읽기 ──────────────────
@@ -23,9 +25,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // workflow_dispatch인 경우 PR 번호에서 정보를 가져옴
+            // workflow_dispatch 또는 repository_dispatch인 경우 PR 번호에서 정보를 가져옴
             const prNumber = context.payload.inputs?.pr_number
               ? parseInt(context.payload.inputs.pr_number)
+              : context.payload.client_payload?.pr_number
+              ? parseInt(context.payload.client_payload.pr_number)
               : context.payload.pull_request?.number;
 
             let body = '';
