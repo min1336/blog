@@ -1,0 +1,102 @@
+# 블로그 프로젝트 AI 파이프라인 설정
+
+# ── 프로젝트 정보 ──
+project:
+  name: blog
+  language: typescript
+  description: "NestJS + Next.js 개인 블로그/포트폴리오"
+
+# ── 빌드 명령어 ──
+build:
+  install: cd backend && npm ci
+  test: cd backend && npm test
+  lint: cd backend && npx eslint .
+  type-check: cd backend && npx tsc --noEmit
+  build: cd backend && npm run build
+
+# ── 파이프라인 단계 on/off ──
+pipeline:
+  enrich: true
+  decompose: true
+  team-discuss: false
+  auto-implement: true
+  pr-review: true
+  ci-fix: true
+  maintenance: true
+
+# ── 리뷰 설정 ──
+review:
+  roles:
+    - security
+    - qa
+    - reviewer
+
+# ── 라벨 ──
+labels:
+  stages:
+    - enriched
+    - ready
+    - implementing
+    - in-review
+    - approved
+  types:
+    - bug
+    - feature
+    - enhancement
+    - docs
+  priorities:
+    - critical
+    - high
+    - medium
+    - low
+  auto-rules:
+    - match: "보안|security|XSS|injection|CSRF"
+      add: ["priority/critical", "type/bug"]
+    - match: "오타|typo|색상|color|텍스트"
+      add: ["priority/low"]
+
+# ── 체크리스트 ──
+checklists:
+  review:
+    - "코드 컨벤션 준수"
+    - "보안 취약점 없음"
+    - "테스트 통과"
+    - "성능 이슈 없음"
+
+# ── 점수제 ──
+scoring:
+  issue:
+    threshold: 8
+    max-enrichment: 3
+  review:
+    threshold: 70
+    weights:
+      security: 25
+      tests: 25
+      code-quality: 20
+      performance: 15
+      documentation: 15
+    verdicts:
+      - range: [90, 100]
+        action: auto-approve
+      - range: [70, 89]
+        action: approve
+      - range: [50, 69]
+        action: request-changes
+      - range: [0, 49]
+        action: block
+
+# ── 안전장치 ──
+safety:
+  max-ci-fix-attempts: 2
+  max-pr-fix-attempts: 2
+  protected-labels:
+    - priority/critical
+    - priority/high
+  stale-days: 30
+  close-days: 60
+
+# ── 배포 ──
+deploy:
+  target: ec2
+  health-check: /api/health
