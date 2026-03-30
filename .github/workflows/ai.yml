@@ -8,5 +8,4 @@ jobs:
   enrich:
     if: github.event.action == 'opened'
     uses: min1336/ai-pipeline/.github/workflows/enrich.yml@main
-    secrets:
-      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+    secrets: inherit
