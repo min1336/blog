@@ -39,7 +39,7 @@ export function Sidebar() {
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
               pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
                 ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 font-medium'
-                : 'text-muted-foreground hover:bg-accent',
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
           >
             <item.icon className="h-4 w-4" />

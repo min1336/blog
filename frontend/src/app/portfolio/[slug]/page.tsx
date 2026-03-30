@@ -13,7 +13,7 @@ export async function generateMetadata({
   const res = await getProject(slug);
   const project = res.data;
   return {
-    title: `${project.title} | My Blog`,
+    title: project.title,
     description: project.summary || project.title,
     openGraph: {
       title: project.title,

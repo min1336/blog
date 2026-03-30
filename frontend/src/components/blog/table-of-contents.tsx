@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface TocItem {
   id: string;
@@ -28,18 +29,25 @@ export function TableOfContents({ content }: { content: string }) {
 
   if (headings.length === 0) return null;
 
+  // h1은 페이지 헤더에 있으므로 h2, h3만 표시
+  const filtered = headings.filter((h) => h.level >= 2);
+  if (filtered.length === 0) return null;
+
   return (
-    <nav className="border rounded-lg p-4 mb-8">
-      <h3 className="font-semibold mb-3 text-sm">목차</h3>
-      <ul className="space-y-1">
-        {headings.map((h) => (
+    <nav className="border rounded-lg p-5 mb-10 bg-muted/30">
+      <h3 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wider">목차</h3>
+      <ul className="space-y-1.5">
+        {filtered.map((h) => (
           <li
             key={h.id}
-            style={{ paddingLeft: `${(h.level - 1) * 12}px` }}
+            style={{ paddingLeft: `${(h.level - 2) * 16}px` }}
           >
             <a
               href={`#${h.id}`}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className={cn(
+                'text-sm transition-colors hover:text-foreground',
+                h.level === 2 ? 'text-foreground/80 font-medium' : 'text-muted-foreground',
+              )}
             >
               {h.text}
             </a>

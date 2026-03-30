@@ -16,7 +16,6 @@ export default async function HomePage() {
   return (
     <div className="max-w-4xl mx-auto">
       <section className="mb-16 pt-8">
-        <p className="text-sm font-medium text-muted-foreground mb-3 tracking-wide uppercase">Welcome</p>
         <h1 className="text-4xl font-bold mb-4 leading-tight">
           배우고, 만들고,<br />기록합니다.
         </h1>
