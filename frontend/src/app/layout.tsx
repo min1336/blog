@@ -40,6 +40,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="Min's Dev Blog RSS" href="/feed.xml" />
+      </head>
       <body className="min-h-full">
         <ThemeProvider>
           <div className="flex min-h-screen">
