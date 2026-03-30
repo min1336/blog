@@ -5,7 +5,8 @@ on:
     types: [opened]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Pipeline triggered for issue ${{ github.event.issue.number }}"
+  enrich:
+    if: github.event.action == 'opened'
+    uses: min1336/ai-pipeline/.github/workflows/enrich.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
