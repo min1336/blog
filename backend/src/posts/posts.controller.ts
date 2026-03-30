@@ -18,6 +18,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class PostsController {
   constructor(private postsService: PostsService) {}
 
+  @Get('meta/stats')
+  @UseGuards(JwtAuthGuard)
+  getStats() {
+    return this.postsService.getStats();
+  }
+
   @Get('meta/categories')
   getCategories() {
     return this.postsService.getCategories();

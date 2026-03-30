@@ -68,6 +68,16 @@ export const logout = () =>
 export const getMe = () =>
   fetchApi<{ id: number; username: string }>('/auth/me');
 
+// Stats
+export const getStats = () =>
+  fetchApi<{
+    totalPosts: number;
+    draftPosts: number;
+    totalViews: number;
+    topPosts: { title: string; slug: string; views: number }[];
+    categories: { name: string; count: number; views: number }[];
+  }>('/posts/meta/stats');
+
 // Categories & Tags
 export const getCategories = () =>
   fetchApi<Category[]>('/posts/meta/categories');

@@ -120,6 +120,38 @@ export class PostsService {
     return { message: 'Post deleted' };
   }
 
+  async getStats() {
+    const posts = await this.postRepo.find({
+      select: ['id', 'title', 'slug', 'category', 'view_count', 'published', 'created_at'],
+    });
+
+    const published = posts.filter((p) => p.published);
+    const totalViews = published.reduce((sum, p) => sum + p.view_count, 0);
+
+    // 글별 조회수 Top 5
+    const topPosts = [...published]
+      .sort((a, b) => b.view_count - a.view_count)
+      .slice(0, 5)
+      .map((p) => ({ title: p.title, slug: p.slug, views: p.view_count }));
+
+    // 카테고리별 글 수 + 조회수
+    const categoryMap = new Map<string, { count: number; views: number }>();
+    for (const p of published) {
+      const cat = p.category || '미분류';
+      const prev = categoryMap.get(cat) || { count: 0, views: 0 };
+      categoryMap.set(cat, { count: prev.count + 1, views: prev.views + p.view_count });
+    }
+    const categories = Array.from(categoryMap, ([name, data]) => ({ name, ...data }));
+
+    return {
+      totalPosts: published.length,
+      draftPosts: posts.length - published.length,
+      totalViews,
+      topPosts,
+      categories,
+    };
+  }
+
   async getCategories() {
     return this.postRepo
       .createQueryBuilder('post')
