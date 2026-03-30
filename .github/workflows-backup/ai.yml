@@ -1,0 +1,68 @@
+name: AI Pipeline
+
+on:
+  # 이슈 구체화 + 세분화
+  issues:
+    types: [opened, labeled]
+
+  # PR 리뷰
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+  # @claude 멘션 대응
+  issue_comment:
+    types: [created]
+
+  # 주간 유지보수 (매주 월요일 10시 KST = 01시 UTC)
+  schedule:
+    - cron: "0 1 * * 1"
+
+  # 수동 실행
+  workflow_dispatch:
+
+jobs:
+  # ── 이슈 구체화 (새 이슈 열릴 때) ──
+  enrich:
+    if: >-
+      github.event_name == 'issues' &&
+      github.event.action == 'opened'
+    uses: min1336/ai-pipeline/.github/workflows/enrich.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+
+  # ── 이슈 세분화 (stage/enriched 라벨 추가 시) ──
+  decompose:
+    if: >-
+      github.event_name == 'issues' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage/enriched'
+    uses: min1336/ai-pipeline/.github/workflows/decompose.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+
+  # ── 자동 구현 (stage/ready 라벨 추가 시) ──
+  implement:
+    if: >-
+      github.event_name == 'issues' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage/ready'
+    uses: min1336/ai-pipeline/.github/workflows/implement.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+
+  # ── PR 리뷰 ──
+  review:
+    if: >-
+      github.event_name == 'pull_request'
+    uses: min1336/ai-pipeline/.github/workflows/review.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+
+  # ── 주간 유지보수 ──
+  maintenance:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+    uses: min1336/ai-pipeline/.github/workflows/maintenance.yml@main
+    secrets:
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}

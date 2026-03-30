@@ -14,15 +14,17 @@ build:
   type-check: cd backend && npx tsc --noEmit
   build: cd backend && npm run build
 
-# ── 파이프라인 단계 on/off ──
+# ── 파이프라인 동작 ──
 pipeline:
-  enrich: true
-  decompose: true
-  team-discuss: false
-  auto-implement: true
-  pr-review: true
-  ci-fix: true
-  maintenance: true
+  require-approval: true  # stage/ready 후 사람이 stage/approved 달아야 구현 시작
+  max-turns:
+    enrich: 15
+    decompose: 20
+    implement: 50
+    review: 20
+    fix-ci: 15
+    fix-pr: 20
+    maintenance: 15
 
 # ── 리뷰 설정 ──
 review:
@@ -95,6 +97,25 @@ safety:
     - priority/high
   stale-days: 30
   close-days: 60
+
+# ── 도메인 컨텍스트 ──
+context:
+  architecture: |
+    backend/   — NestJS 11 API (TypeORM, MySQL)
+    frontend/  — Next.js (Tailwind CSS, shadcn/ui)
+    backend/src/posts/     — 블로그 포스트 CRUD
+    backend/src/auth/      — JWT 인증
+    backend/src/comments/  — 댓글
+    backend/src/projects/  — 포트폴리오 프로젝트
+    backend/src/upload/    — 이미지 업로드
+  conventions: |
+    - TypeScript strict mode
+    - 한국어 주석
+    - 2칸 들여쓰기
+    - Conventional commits
+  glossary: |
+    - Post: 블로그 포스트 (markdown 본문, 메타데이터)
+    - Project: 포트폴리오 프로젝트 (기술 스택, 설명, 링크)
 
 # ── 배포 ──
 deploy:
