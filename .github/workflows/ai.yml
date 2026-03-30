@@ -2,13 +2,10 @@ name: AI Pipeline
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
 jobs:
-  enrich:
-    if: >-
-      github.event_name == 'issues' &&
-      github.event.action == 'opened'
-    uses: min1336/ai-pipeline/.github/workflows/enrich.yml@main
-    secrets:
-      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Pipeline triggered for issue ${{ github.event.issue.number }}"
