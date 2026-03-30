@@ -11,6 +11,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
   return (
     <div className="prose prose-zinc dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-a:text-foreground prose-a:underline-offset-4">
       <ReactMarkdown
+        children={content}
         components={{
           h1: ({ children, ...props }) => (
             <h1 id={makeHeadingId(children)} {...props}>{children}</h1>
