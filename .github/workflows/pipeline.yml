@@ -7,5 +7,5 @@ on:
 jobs:
   enrich:
     if: github.event.action == 'opened'
-    uses: min1336/ai-pipeline/.github/workflows/enrich.yml@main
+    uses: min1336/ai-pipeline/.github/workflows/enrich.yml@f78498fef12a45d68b4a21e7316da3671acfb630
     secrets: inherit
