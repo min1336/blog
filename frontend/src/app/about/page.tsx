@@ -1,7 +1,17 @@
+import type { Metadata } from 'next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Code2, Database, Cloud } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: '풀스택 웹 개발자 김민혁의 소개와 기술 스택',
+  openGraph: {
+    title: 'About | Min\'s Dev Blog',
+    description: '풀스택 웹 개발자 김민혁의 소개와 기술 스택',
+  },
+};
 
 const skillCategories = [
   {

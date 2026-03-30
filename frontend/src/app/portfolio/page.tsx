@@ -1,7 +1,17 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getProjects } from '@/lib/api';
 import { ProjectCard } from '@/components/portfolio/project-card';
 import { SearchInput } from '@/components/blog/search-input';
+
+export const metadata: Metadata = {
+  title: '포트폴리오',
+  description: '직접 만든 프로젝트들을 소개합니다.',
+  openGraph: {
+    title: '포트폴리오 | Min\'s Dev Blog',
+    description: '직접 만든 프로젝트들을 소개합니다.',
+  },
+};
 
 export default async function PortfolioPage({
   searchParams,

@@ -1,8 +1,18 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getPosts, getCategories } from '@/lib/api';
 import { PostCard } from '@/components/blog/post-card';
 import { SearchInput } from '@/components/blog/search-input';
 import type { Post, Category } from '@/lib/types';
+
+export const metadata: Metadata = {
+  title: '블로그',
+  description: '웹 개발 학습 과정에서 배운 것들을 기록하고 공유합니다.',
+  openGraph: {
+    title: '블로그 | Min\'s Dev Blog',
+    description: '웹 개발 학습 과정에서 배운 것들을 기록하고 공유합니다.',
+  },
+};
 
 /**
  * 페이지네이션 URL 생성 헬퍼 — 현재 필터(category, tag, search)를 유지하며 page만 변경
