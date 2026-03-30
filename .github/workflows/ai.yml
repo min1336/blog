@@ -168,48 +168,43 @@ jobs:
         shell: bash
         run: |
           COMMENT="${{ github.event.comment.body }}"
-          CMD=$(echo "$COMMENT" | head -1 | sed 's/@claude\s*//' | awk '{print $1}')
-          ARGS=$(echo "$COMMENT" | head -1 | sed 's/@claude\s*//' | awk '{$1=""; print $0}' | xargs)
+          CMD=$(echo "$COMMENT" | head -1 | sed 's/@claude[[:space:]]*//' | awk '{print $1}')
+          ARGS=$(echo "$COMMENT" | head -1 | sed 's/@claude[[:space:]]*//' | awk '{$1=""; print $0}' | xargs)
           NUMBER="${{ github.event.issue.number }}"
 
-          echo "command=$CMD" >> "$GITHUB_OUTPUT"
           echo "args=${ARGS:-$NUMBER}" >> "$GITHUB_OUTPUT"
           echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
 
-          # 명령어 유효성 검사
+          # 명령어 → 스킬 이름 매핑
           case "$CMD" in
-            enrich|decompose|implement|review|fix|help)
-              echo "valid=true" >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo "valid=false" >> "$GITHUB_OUTPUT"
-              ;;
+            enrich)    echo "skill=enrich-issue" >> "$GITHUB_OUTPUT" ;;
+            decompose) echo "skill=decompose-issue" >> "$GITHUB_OUTPUT" ;;
+            implement) echo "skill=implement" >> "$GITHUB_OUTPUT" ;;
+            review)    echo "skill=review-pr" >> "$GITHUB_OUTPUT" ;;
+            fix)       echo "skill=fix-pr" >> "$GITHUB_OUTPUT" ;;
+            help)      echo "skill=help" >> "$GITHUB_OUTPUT" ;;
+            *)         echo "skill=unknown" >> "$GITHUB_OUTPUT" ;;
           esac
 
       - name: help 응답
-        if: steps.parse.outputs.command == 'help' || steps.parse.outputs.valid == 'false'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = steps.parse.outputs.valid === 'false'
-              ? `알 수 없는 명령어: \`${context.payload.comment.body}\`\n\n`
-              : '';
-            await github.rest.issues.createComment({
-              ...context.repo,
-              issue_number: ${{ github.event.issue.number }},
-              body: body + `## 사용 가능한 명령어\n
-            | 명령어 | 설명 |
-            |--------|------|
-            | \`@claude enrich\` | 이슈 재분석 |
-            | \`@claude decompose\` | 구현 계획 재작성 |
-            | \`@claude implement\` | 구현 시작 |
-            | \`@claude review\` | PR 리뷰 |
-            | \`@claude fix\` | 리뷰 피드백 반영 |
-            | \`@claude help\` | 이 도움말 |`
-            });
+        if: steps.parse.outputs.skill == 'help' || steps.parse.outputs.skill == 'unknown'
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --body "## 사용 가능한 명령어
+
+          | 명령어 | 설명 |
+          |--------|------|
+          | \`@claude enrich\` | 이슈 재분석 |
+          | \`@claude decompose\` | 구현 계획 재작성 |
+          | \`@claude implement\` | 구현 시작 |
+          | \`@claude review\` | PR 리뷰 |
+          | \`@claude fix\` | 리뷰 피드백 반영 |
+          | \`@claude help\` | 이 도움말 |"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: 스킬 실행
-        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.command != 'help'
+        if: steps.parse.outputs.skill != 'help' && steps.parse.outputs.skill != 'unknown'
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
@@ -221,7 +216,7 @@ jobs:
             - 린트: ${{ steps.config.outputs.lint-command }}
 
             ---
-            /${{ steps.parse.outputs.command == 'enrich' && 'enrich-issue' || steps.parse.outputs.command == 'decompose' && 'decompose-issue' || steps.parse.outputs.command == 'review' && 'review-pr' || steps.parse.outputs.command == 'fix' && 'fix-pr' || steps.parse.outputs.command }} ${{ steps.parse.outputs.args }}
+            /${{ steps.parse.outputs.skill }} ${{ steps.parse.outputs.args }}
           claude_args: |
             --max-turns 30
 
