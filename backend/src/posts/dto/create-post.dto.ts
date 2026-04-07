@@ -3,6 +3,7 @@ import {
   IsOptional,
   IsBoolean,
   IsArray,
+  IsNumber,
   MinLength,
 } from 'class-validator';
 
@@ -24,8 +25,8 @@ export class CreatePostDto {
   summary?: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsNumber()
+  category_id?: number;
 
   @IsOptional()
   @IsArray()

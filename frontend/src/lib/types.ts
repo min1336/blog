@@ -4,7 +4,8 @@ export interface Post {
   slug: string;
   content: string;
   summary: string;
-  category: string;
+  category_id: number | null;
+  categoryEntity?: { id: number; name: string; slug: string } | null;
   tags: string[];
   thumbnail: string;
   view_count: number;
@@ -55,9 +56,22 @@ export interface ApiResponse<T> {
   };
 }
 
-export interface Category {
-  category: string;
-  count: number;
+// 계층형 카테고리
+export interface CategoryChild {
+  id: number;
+  name: string;
+  slug: string;
+  sort_order: number;
+  post_count: number;
+}
+
+export interface CategoryTree {
+  id: number;
+  name: string;
+  slug: string;
+  sort_order: number;
+  post_count: number;
+  children: CategoryChild[];
 }
 
 export interface Tag {

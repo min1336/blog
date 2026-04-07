@@ -24,12 +24,7 @@ export class PostsController {
     return this.postsService.getStats();
   }
 
-  @Get('meta/categories')
-  getCategories() {
-    return this.postsService.getCategories();
-  }
-
-  @Get('meta/tags')
+@Get('meta/tags')
   getTags() {
     return this.postsService.getTags();
   }

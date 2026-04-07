@@ -53,7 +53,7 @@ export default function AdminPostsPage() {
             {posts.map((post) => (
               <tr key={post.id} className="border-b">
                 <td className="p-3 font-medium">{post.title}</td>
-                <td className="p-3">{post.category || '-'}</td>
+                <td className="p-3">{post.categoryEntity?.name || '-'}</td>
                 <td className="p-3">
                   <Badge variant={post.published ? 'default' : 'secondary'}>
                     {post.published ? 'Published' : 'Draft'}

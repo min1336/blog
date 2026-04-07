@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from './post.entity';
+import { Category } from '../categories/category.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
@@ -20,6 +21,8 @@ export class PostsService {
   constructor(
     @InjectRepository(Post)
     private postRepo: Repository<Post>,
+    @InjectRepository(Category)
+    private categoryRepo: Repository<Category>,
   ) {}
 
   async findAll(query: {
@@ -34,11 +37,27 @@ export class PostsService {
 
     const qb = this.postRepo.createQueryBuilder('post');
 
+    // 카테고리 관계 eager load
+    qb.leftJoinAndSelect('post.categoryEntity', 'cat');
+
     if (published !== undefined) {
       qb.andWhere('post.published = :published', { published });
     }
     if (category) {
-      qb.andWhere('post.category = :category', { category });
+      // category slug로 필터링: 대분류면 하위 소분류 전체, 소분류면 해당만
+      const matched = await this.categoryRepo.findOne({
+        where: { slug: category },
+        relations: ['children'],
+      });
+      if (matched) {
+        if (matched.parent_id === null && matched.children?.length > 0) {
+          // 대분류: 자기 자신 + 소분류 모두 포함
+          const ids = [matched.id, ...matched.children.map((c) => c.id)];
+          qb.andWhere('post.category_id IN (:...ids)', { ids });
+        } else {
+          qb.andWhere('post.category_id = :categoryId', { categoryId: matched.id });
+        }
+      }
     }
     if (tag) {
       qb.andWhere('JSON_CONTAINS(post.tags, :tag)', {
@@ -74,7 +93,10 @@ export class PostsService {
   }
 
   async findBySlug(slug: string) {
-    const post = await this.postRepo.findOne({ where: { slug } });
+    const post = await this.postRepo.findOne({
+      where: { slug },
+      relations: ['categoryEntity'],
+    });
     if (!post) throw new NotFoundException('Post not found');
 
     await this.postRepo.increment({ id: post.id }, 'view_count', 1);
@@ -122,7 +144,8 @@ export class PostsService {
 
   async getStats() {
     const posts = await this.postRepo.find({
-      select: ['id', 'title', 'slug', 'category', 'view_count', 'published', 'created_at'],
+      select: ['id', 'title', 'slug', 'category_id', 'view_count', 'published', 'created_at'],
+      relations: ['categoryEntity'],
     });
 
     const published = posts.filter((p) => p.published);
@@ -137,7 +160,7 @@ export class PostsService {
     // 카테고리별 글 수 + 조회수
     const categoryMap = new Map<string, { count: number; views: number }>();
     for (const p of published) {
-      const cat = p.category || '미분류';
+      const cat = p.categoryEntity?.name || '미분류';
       const prev = categoryMap.get(cat) || { count: 0, views: 0 };
       categoryMap.set(cat, { count: prev.count + 1, views: prev.views + p.view_count });
     }
@@ -150,16 +173,6 @@ export class PostsService {
       topPosts,
       categories,
     };
-  }
-
-  async getCategories() {
-    return this.postRepo
-      .createQueryBuilder('post')
-      .select('post.category', 'category')
-      .addSelect('COUNT(*)', 'count')
-      .where('post.published = true AND post.category IS NOT NULL')
-      .groupBy('post.category')
-      .getRawMany();
   }
 
   async getTags() {

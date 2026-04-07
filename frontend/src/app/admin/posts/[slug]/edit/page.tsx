@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/admin/markdown-editor';
-import { getPost, updatePost } from '@/lib/api';
+import { getPost, updatePost, getCategoryTree } from '@/lib/api';
+import type { CategoryTree } from '@/lib/types';
 
 export default function EditPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -14,20 +15,24 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
   const [postSlug, setPostSlug] = useState('');
   const [content, setContent] = useState('');
   const [summary, setSummary] = useState('');
-  const [category, setCategory] = useState('');
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [tags, setTags] = useState('');
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    getCategoryTree().then((res) => {
+      if (res.success) setCategories(res.data);
+    });
     getPost(slug).then((res) => {
       const post = res.data;
       setTitle(post.title);
       setPostSlug(post.slug);
       setContent(post.content);
       setSummary(post.summary || '');
-      setCategory(post.category || '');
+      setCategoryId(post.category_id ?? null);
       setTags(post.tags ? post.tags.join(', ') : '');
       setPublished(post.published);
     }).catch(() => {});
@@ -43,7 +48,7 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
         slug: postSlug,
         content,
         summary,
-        category: category || undefined,
+        category_id: categoryId,
         tags: tags ? tags.split(',').map((t) => t.trim()) : [],
         published,
       });
@@ -76,7 +81,20 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="text-sm font-medium">Category</label>
-            <Input value={category} onChange={(e) => setCategory(e.target.value)} />
+            <select
+              value={categoryId ?? ''}
+              onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+              className="w-full h-10 px-3 rounded-lg border bg-background text-sm"
+            >
+              <option value="">미분류</option>
+              {categories.map((parent) => (
+                <optgroup key={parent.id} label={parent.name}>
+                  {parent.children.map((child) => (
+                    <option key={child.id} value={child.id}>{child.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-sm font-medium">Tags (comma separated)</label>

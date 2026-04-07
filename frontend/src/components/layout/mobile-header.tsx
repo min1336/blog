@@ -1,17 +1,18 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, BookOpen, Briefcase, User, Search, X } from 'lucide-react';
+import { Menu, Briefcase, User, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/common/theme-toggle';
 import { SearchInput } from '@/components/blog/search-input';
+import { CategoryNav } from '@/components/layout/category-nav';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/blog', label: 'Blog', icon: BookOpen },
+const staticNavItems = [
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/about', label: 'About', icon: User },
 ];
@@ -48,23 +49,33 @@ export function MobileHeader() {
               <Menu className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="left">
-              <nav className="flex flex-col gap-2 mt-8">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-md text-sm',
-                      pathname.startsWith(item.href)
-                        ? 'bg-accent font-medium'
-                        : 'text-muted-foreground',
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              <div className="flex flex-col gap-4 mt-8">
+                {/* 계층형 카테고리 */}
+                <Suspense fallback={null}>
+                  <CategoryNav />
+                </Suspense>
+
+                <hr className="border-border" />
+
+                {/* 정적 링크 */}
+                <nav className="flex flex-col gap-2">
+                  {staticNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-md text-sm',
+                        pathname.startsWith(item.href)
+                          ? 'bg-accent font-medium'
+                          : 'text-muted-foreground',
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

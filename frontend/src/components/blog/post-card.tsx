@@ -26,9 +26,9 @@ export function PostCard({ post }: { post: Post }) {
         )}
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-            {post.category && (
+            {post.categoryEntity && (
               <Badge variant="secondary" className="text-xs font-normal">
-                {post.category}
+                {post.categoryEntity.name}
               </Badge>
             )}
             <span>{date}</span>

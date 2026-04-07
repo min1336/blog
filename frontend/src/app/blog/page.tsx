@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Suspense } from 'react';
-import { getPosts, getCategories } from '@/lib/api';
-import { PostCard } from '@/components/blog/post-card';
+import { getPosts } from '@/lib/api';
 import { SearchInput } from '@/components/blog/search-input';
-import type { Post, Category } from '@/lib/types';
+import type { Post } from '@/lib/types';
 
 export const metadata: Metadata = {
   title: '블로그',
@@ -41,18 +41,13 @@ export default async function BlogPage({
   if (params.search) query.set('search', params.search);
   if (params.page) query.set('page', params.page);
 
-  const [postsRes, categoriesRes] = await Promise.all([
-    getPosts(query.toString()),
-    getCategories(),
-  ]);
-
+  const postsRes = await getPosts(query.toString());
   const posts = postsRes.data as Post[];
-  const categories = categoriesRes.data as Category[];
   const meta = postsRes.meta;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-end justify-between mb-6 gap-4">
+    <div className="max-w-3xl mx-auto">
+      <div className="flex items-end justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Blog</h1>
           {params.search && (
@@ -60,38 +55,21 @@ export default async function BlogPage({
               &ldquo;{params.search}&rdquo; 검색 결과
             </p>
           )}
+          {params.category && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {params.category}
+            </p>
+          )}
         </div>
         <div className="w-64">
-          {/* 검색 입력창 로딩 중 skeleton fallback */}
           <Suspense fallback={<div className="h-10 w-full rounded-lg border bg-muted animate-pulse" />}>
             <SearchInput />
           </Suspense>
         </div>
       </div>
 
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-8">
-          <a
-            href="/blog"
-            className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${!params.category ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border-transparent' : 'hover:bg-accent'}`}
-          >
-            All
-          </a>
-          {categories.map((cat) => (
-            <a
-              key={cat.category}
-              href={`/blog?category=${cat.category}`}
-              className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${params.category === cat.category ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 border-transparent' : 'hover:bg-accent'}`}
-            >
-              {cat.category} ({cat.count})
-            </a>
-          ))}
-        </div>
-      )}
-
       {posts.length === 0 ? (
         <div className="text-center py-16">
-          {/* 검색 중이면 검색 결과 없음, 아니면 게시글 없음 메시지 구분 */}
           {params.search ? (
             <>
               <p className="text-muted-foreground text-lg">
@@ -107,9 +85,24 @@ export default async function BlogPage({
           )}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="divide-y divide-border">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <Link
+              key={post.id}
+              href={`/blog/${post.slug}`}
+              className="flex items-baseline gap-4 py-3.5 group transition-colors hover:bg-accent/50 -mx-3 px-3 rounded-lg"
+            >
+              <time className="text-sm text-muted-foreground shrink-0 tabular-nums w-24">
+                {new Date(post.created_at).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })}
+              </time>
+              <span className="text-sm group-hover:text-foreground transition-colors truncate">
+                {post.title}
+              </span>
+            </Link>
           ))}
         </div>
       )}

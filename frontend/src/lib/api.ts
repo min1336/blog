@@ -1,4 +1,4 @@
-import type { ApiResponse, Post, Project, Comment, Category, Tag } from './types';
+import type { ApiResponse, Post, Project, Comment, CategoryTree, Tag } from './types';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const isServer = typeof window === 'undefined';
@@ -79,11 +79,21 @@ export const getStats = () =>
   }>('/posts/meta/stats');
 
 // Categories & Tags
-export const getCategories = () =>
-  fetchApi<Category[]>('/posts/meta/categories');
+export const getCategoryTree = () =>
+  fetchApi<CategoryTree[]>('/categories');
 
 export const getTags = () =>
   fetchApi<Tag[]>('/posts/meta/tags');
+
+// Admin Category CRUD
+export const createCategory = (body: { name: string; slug: string; parent_id?: number; sort_order?: number }) =>
+  fetchApi<CategoryTree>('/categories', { method: 'POST', body: JSON.stringify(body) });
+
+export const updateCategory = (id: number, body: { name?: string; slug?: string; parent_id?: number | null; sort_order?: number }) =>
+  fetchApi<CategoryTree>(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+
+export const deleteCategory = (id: number) =>
+  fetchApi<{ message: string }>(`/categories/${id}`, { method: 'DELETE' });
 
 // Admin CRUD
 export const createPost = (body: Partial<Post>) =>

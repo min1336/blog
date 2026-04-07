@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from '@/components/admin/markdown-editor';
-import { createPost } from '@/lib/api';
+import { createPost, getCategoryTree } from '@/lib/api';
+import type { CategoryTree } from '@/lib/types';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -13,11 +14,18 @@ export default function NewPostPage() {
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
   const [summary, setSummary] = useState('');
-  const [category, setCategory] = useState('');
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [tags, setTags] = useState('');
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getCategoryTree().then((res) => {
+      if (res.success) setCategories(res.data);
+    });
+  }, []);
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
@@ -39,7 +47,7 @@ export default function NewPostPage() {
         slug,
         content,
         summary,
-        category: category || undefined,
+        category_id: categoryId,
         tags: tags ? tags.split(',').map((t) => t.trim()) : [],
         published,
       });
@@ -72,7 +80,20 @@ export default function NewPostPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="text-sm font-medium">Category</label>
-            <Input value={category} onChange={(e) => setCategory(e.target.value)} />
+            <select
+              value={categoryId ?? ''}
+              onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+              className="w-full h-10 px-3 rounded-lg border bg-background text-sm"
+            >
+              <option value="">미분류</option>
+              {categories.map((parent) => (
+                <optgroup key={parent.id} label={parent.name}>
+                  {parent.children.map((child) => (
+                    <option key={child.id} value={child.id}>{child.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-sm font-medium">Tags (comma separated)</label>

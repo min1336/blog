@@ -11,7 +11,7 @@ function escapeXml(str: string): string {
 }
 
 export async function GET() {
-  let posts: { slug: string; title: string; summary: string; created_at: string; category: string; tags: string[] }[] = [];
+  let posts: { slug: string; title: string; summary: string; created_at: string; categoryEntity?: { name: string } | null; tags: string[] }[] = [];
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/posts?limit=50`, { cache: 'no-store' });
@@ -27,7 +27,7 @@ export async function GET() {
       <guid isPermaLink="true">${SITE_URL}/blog/${post.slug}</guid>
       <description>${escapeXml(post.summary || post.title)}</description>
       <pubDate>${new Date(post.created_at).toUTCString()}</pubDate>
-      <category>${escapeXml(post.category || '')}</category>
+      <category>${escapeXml(post.categoryEntity?.name || '')}</category>
     </item>`).join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -3,10 +3,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './post.entity';
+import { Category } from '../categories/category.entity';
 
 // TypeORM QueryBuilder 모의 객체 — projects.service.spec.ts와 동일한 패턴 사용
 const createQueryBuilderMock = (returnValue: Post[], total = returnValue.length) => ({
   andWhere: jest.fn().mockReturnThis(),
+  innerJoin: jest.fn().mockReturnThis(),
+  leftJoinAndSelect: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   skip: jest.fn().mockReturnThis(),
   take: jest.fn().mockReturnThis(),
@@ -25,10 +28,11 @@ const mockPost = (override: Partial<Post> = {}): Post => ({
   title: 'Test Post',
   slug: 'test-post',
   content: '# Test Content',
-  summary: 'Test summary',
-  category: null,
-  tags: null,
-  thumbnail: null,
+  summary: 'Test summary' as string,
+  category_id: null,
+  categoryEntity: null as unknown as Category,
+  tags: null as unknown as string[],
+  thumbnail: null as unknown as string,
   view_count: 0,
   published: true,
   created_at: new Date('2026-01-01'),
@@ -50,11 +54,16 @@ describe('PostsService', () => {
     increment: jest.fn(),
   };
 
+  const mockCategoryRepo = {
+    findOne: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
         { provide: getRepositoryToken(Post), useValue: mockRepo },
+        { provide: getRepositoryToken(Category), useValue: mockCategoryRepo },
       ],
     }).compile();
 
@@ -81,7 +90,7 @@ describe('PostsService', () => {
 
     it('summary=NULL인 글도 제목 검색에서 정상 반환한다', async () => {
       // summary가 null이어도 제목에 키워드가 있으면 결과에 포함돼야 함
-      const posts = [mockPost({ title: 'Next.js 심화', summary: null })];
+      const posts = [mockPost({ title: 'Next.js 심화', summary: null as unknown as string })];
       qbMock = createQueryBuilderMock(posts);
       mockRepo.createQueryBuilder.mockReturnValue(qbMock);
 

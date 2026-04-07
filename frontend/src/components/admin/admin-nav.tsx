@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FileText, Briefcase, MessageSquare, LayoutDashboard, LogOut } from 'lucide-react';
+import { FileText, Briefcase, MessageSquare, LayoutDashboard, LogOut, FolderTree } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logout } from '@/lib/api';
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/posts', label: 'Posts', icon: FileText },
+  { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/projects', label: 'Projects', icon: Briefcase },
   { href: '/admin/comments', label: 'Comments', icon: MessageSquare },
 ];

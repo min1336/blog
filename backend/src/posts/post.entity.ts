@@ -5,11 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Category } from '../categories/category.entity';
 
 @Entity('posts')
 @Index('idx_posts_published_created', ['published', 'created_at'])
-@Index('idx_posts_category', ['category'])
+@Index('idx_posts_category_id', ['category_id'])
 export class Post {
   @PrimaryGeneratedColumn()
   id: number;
@@ -26,8 +29,12 @@ export class Post {
   @Column({ length: 500, nullable: true })
   summary: string;
 
-  @Column({ length: 100, nullable: true })
-  category: string;
+  @Column({ nullable: true })
+  category_id: number | null;
+
+  @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'category_id' })
+  categoryEntity: Category;
 
   @Column('json', { nullable: true })
   tags: string[];

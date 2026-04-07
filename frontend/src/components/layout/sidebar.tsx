@@ -1,14 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Briefcase, User } from 'lucide-react';
+import { Briefcase, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/common/theme-toggle';
 import { Separator } from '@/components/ui/separator';
+import { CategoryNav } from '@/components/layout/category-nav';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/blog', label: 'Blog', icon: BookOpen },
+const staticNavItems = [
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/about', label: 'About', icon: User },
 ];
@@ -28,10 +29,20 @@ export function Sidebar() {
         </div>
       </Link>
 
-      <Separator className="mb-6" />
+      <Separator className="mb-4" />
 
-      <nav className="flex flex-col gap-1 mb-8">
-        {navItems.map((item) => (
+      {/* 계층형 카테고리 네비게이션 */}
+      <div className="mb-4 flex-1 overflow-y-auto">
+        <Suspense fallback={null}>
+          <CategoryNav />
+        </Suspense>
+      </div>
+
+      <Separator className="mb-4" />
+
+      {/* 정적 링크: 포트폴리오, About */}
+      <nav className="flex flex-col gap-1 mb-4">
+        {staticNavItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -47,8 +58,6 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
-
-      <div className="flex-1" />
 
       <Separator className="mb-4" />
 
