@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.7"/>
+    <title>행복의 열매따기</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: inline-block;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: auto;
+        }
+        .container {
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 1);
+            padding: 10px;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #7CB567;
+            font-size: 2em; /* 제목 글자 크기 조정 */
+            margin-bottom: 5px; /* 제목과 feat 사이 간격을 줄이기 */
+        }
+        p {
+            font-size: 1.4em; /* 설명 글자 크기 조정 */
+            color: #848484;
+            line-height: 1.4em;
+            margin: 10px 0; /* 텍스트 위아래 간격 */
+        }
+        button {
+            background-color: #7CB567;
+            color: white;
+            padding: 12px 100px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #37683a;
+        }
+        .image-container img {
+            width: 300px;
+            height: auto;
+            margin-top: 20px;
+            display: none; /* 초기에는 이미지를 숨김 */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>나의 열매 찾기 테스트</h1>
+        <p>(feat. 성령의 아홉가지 열매)</p>
+        <div class="image-container">
+            <img id="main-image" src="https://github.com/min1336/murasaki/blob/main/startpage_character.png?raw=true" alt="Cat holding clovers">
+        </div>
+        <p>행복축제에 오신 걸 환영해요!<br>간단한 테스트로 당신의 열매를 찾아보실래요?</p>
+
+        <button onclick="startTest()">시작하기</button>
+    </div>
+
+    <script>
+        // 프리로드 함수 정의
+        function preloadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = resolve;
+                img.onerror = reject;
+            });
+        }
+
+        // 이미지 로딩 후 표시
+        async function loadMainImage() {
+            const imageSrc = "https://github.com/min1336/murasaki/blob/main/startpage_character.png?raw=true";
+            try {
+                await preloadImage(imageSrc);
+                document.getElementById("main-image").style.display = "block"; // 로딩 완료 후 이미지 표시
+            } catch (error) {
+                console.error("이미지 로딩 실패:", error);
+            }
+        }
+
+        // 페이지 로드 시 이미지 프리로드 시작
+        window.onload = loadMainImage;
+
+        function startTest() {
+            window.location.href = "nextpage.html";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+button {
+    background-color: #7CB567;
+    color: white;
+    padding: 16px 29px;
+    font-size: 1.2em;
+    border: 1;
+    border-radius: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    letter-spacing: 0.15em; /* 글자 간 간격 조절 */
+}
+button:hover {
+    background-color: #37683a;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+
+
+
+/* styles.css */
+
+@font-face {
+    font-family: 'LeeSeoyun';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/LeeSeoyun.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'LeeSeoyun', sans-serif;
+}
+
+body, html {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0;
+    font-size: 18px;
+}
+
+h1, h2 {
+    color: #4a8a4d;
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+.container {
+    margin-top: 8px;
+    padding: 10px;
+}
+
+.question {
+    font-size: 1.2em;
+    text-align: center;
+    margin-bottom: 90px;
+}
+.options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 10px 0;
+}
+.options-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 옵션 사이 간격 */
+    justify-content: center;
+}
+/* 텍스트 크기 조정 */
+.label-text {
+    font-size: 13px;
+    font-weight: normal; /* 텍스트를 얇게 설정 */
+}
+
+
+
+
+
+
+
+.radio-container {
+    position: relative;
+    padding: 0 12px; /* 좌우 패딩 추가 */
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #333;
+    transition: color 0.3s ease;
+}
+.radio-container input[type="radio"] {
+    display: none;
+}
+
+/* 동그라미 크기 및 색상 설정 */
+.radio-mark {
+    display: inline-block;
+    border-radius: 50%;
+    border: 2px solid; /* 선 두께 */
+}
+
+/* 개별 동그라미의 크기 및 색상 설정 */
+.radio-container:nth-child(1) .radio-mark {
+    width: 45px;
+    height: 45px;
+    border-color: #28a745;
+}
+
+.radio-container:nth-child(2) .radio-mark {
+    width: 38px;
+    height: 38px;
+    border-color: #28a745;
+}
+
+.radio-container:nth-child(3) .radio-mark {
+    width: 28px;
+    height: 28px;
+    border-color: #6c757d;
+}
+
+.radio-container:nth-child(4) .radio-mark {
+    width: 38px;
+    height: 38px;
+    border-color: #6f42c1;
+}
+
+.radio-container:nth-child(5) .radio-mark {
+    width: 45px;
+    height: 45px;
+    border-color: #6f42c1;
+}
+
+
+
+
+/* 공통 스타일 */
+.radio-container {
+    position: relative;
+    padding: 0 12px;
+}
+
+/* 개별 색상 설정 */
+.radio-container1 .radio-mark {
+    width: 45px;
+    height: 45px;
+    border: 3px solid #28a745; /* 초록색 */
+}
+
+.radio-container2 .radio-mark {
+    width: 38px;
+    height: 38px;
+    border: 3px solid #6c757d; /* 회색 */
+}
+
+.radio-container3 .radio-mark {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #6f42c1; /* 보라색 */
+}
+
+/* 선택된 상태에서 배경 색상 추가 */
+.radio-container1 input[type="radio"]:checked + .radio-mark {
+    background-color: #28a745; /* 초록색 */
+}
+
+.radio-container2 input[type="radio"]:checked + .radio-mark {
+    background-color: #6c757d; /* 회색 */
+}
+
+.radio-container3 input[type="radio"]:checked + .radio-mark {
+    background-color: #6f42c1; /* 보라색 */
+}
+
+/* 애니메이션 효과 */
+.radio-container input[type="radio"]:checked + .radio-mark {
+    animation: pulse 0.5s ease;
+}

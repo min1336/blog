@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.7"/>
+    <title>행복의 열매따기</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex; /* Flexbox 사용 */
+            flex-direction: column; /* 세로 방향으로 정렬 */
+            justify-content: center; /* 수직 중앙 정렬 */
+            align-items: center; /* 수평 중앙 정렬 */
+            text-align: center;
+            height: 100vh; /* 전체 높이를 뷰포트 높이에 맞춤 */
+        }
+    
+        #radarChart {
+            width: 350px !important;
+            height: 350px !important;
+        }
+    
+        #home {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #7CB567;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #home:hover {
+            background-color: #37683a;
+        }
+    
+        .image-container img {
+            width: 400px;
+            height: auto;
+            margin-top: 20px;
+        }
+    
+        .qr-image img {
+            width: 100px; /* QR 코드 이미지 크기 */
+            height: auto;
+            margin-top: 20px;
+        }
+    </style>
+    
+</head>
+<body>
+    <table>
+        <tr>
+            <td>
+                <div class="image-container">
+                    <img id="winner-image" src="#" alt="Selected winner image" style="max-width: 100%; height: auto; margin-left: -30px;">
+                </div>
+            </td>
+            <td rowspan="2">
+                <canvas id="radarChart" width="250" height="250"></canvas>
+                <span style="color: gray;">이 그래프를 소장하고 싶으시면 직접 핸드폰으로 찍어주세요. <br> (해당 그래프는 QR코드에 나타나지 않습니다.)</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center">
+                <h1 id="selected-winner" style="display: none;"></h1>
+                <p id="winner-description"></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id="home" class="home">홈으로 돌아가기</button>
+            </td>
+            <td height ="20", style="text-align:center">
+                <img id="QR" class="qr-image" src="#" style="max-width: 80px; height: 80px;"><br>
+                <span style="color: gray;">당신의 주 열매에 대한 상세한 설명이 궁금하시다면 <br> 다음의 QR코드를 확인해주세요. <br> (위의 그래프는 QR코드에 없습니다.)</span>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        const selectedWinner = sessionStorage.getItem("selectedWinner") || sessionStorage.getItem("highestScore") || "선택된 항목이 없습니다.";
+        document.getElementById("selected-winner").textContent = selectedWinner;
+
+        const winnerImage = document.getElementById("winner-image");
+        const winnerDescription = document.getElementById("winner-description"); // 설명 요소
+        const QR = document.getElementById("QR");
+
+        // 이미지 및 설명 설정
+        if (selectedWinner === "사랑") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/love.png?raw=true";
+            winnerDescription.innerHTML = "사랑은 따뜻한 포옹처럼 단순히 누군가를 좋아하는 마음뿐만 아니라,<br> 상대의 행복을 위해 행동하는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/loveQR.png?raw=true";
+        } else if (selectedWinner === "희락") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/joy.png?raw=true";
+            winnerDescription.innerHTML = "희락은 친구에게 예상치 못했던 선물을 받을 때처럼,<br> 매일 반복되는 일상 중에 찾아온 작은 일이 하루를 환하게 만들어주는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/joyQR.png?raw=true";
+        } else if (selectedWinner === "화평") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/peace.png?raw=true";
+            winnerDescription.innerHTML = "화평은 오랫동안 연락이 끊긴 형제가 오해를 풀고 서로 웃으며 손을 맞잡을 때처럼,<br> 마음 속의 소란이 멈추고 진정한 화합으로 조화를 이루어나가는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/peaceQR.png?raw=true";
+        } else if (selectedWinner === "오래참음") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/patience.png?raw=true";
+            winnerDescription.innerHTML = "오래참음은 끝까지 버티는 마라톤과 같이 한 걸음 한 걸음 인내하며 희망을 가지고 감내할 때에,<br> 결국에는 우리를 더 성장시키고 강하게 만들어주는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/patienceQR.png?raw=true";
+        } else if (selectedWinner === "자비") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/kindness.png?raw=true";
+            winnerDescription.innerHTML = "자비는 빗속에서 건네는 우산처럼,<br> 도움이 필요한 사람을 지나치지 않고 그들의 어려움을 보며 자신의 시간과 자원을 기꺼이 내어주는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/kindnessQR.png?raw=true";
+        } else if (selectedWinner === "양선") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/goodness.png?raw=true";
+            winnerDescription.innerHTML = "양선은 찬바람에 꽁꽁 언 손을 따뜻하게 감싸주는 손난로처럼,<br> 누군가의 마음을 녹여주는 온기 같은 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/goodnessQR.png?raw=true";
+        } else if (selectedWinner === "충성") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/faithfulness.png?raw=true";
+            winnerDescription.innerHTML = "충성은 하루하루 빠짐없이 출석해서 받았던 개근상처럼,<br> 변함없는 신뢰와 헌신으로 어떤 사람이나 일을 위해 꾸준히 노력하는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/faithfulnessQR.png?raw=true";
+        } else if (selectedWinner === "온유") {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/gentleness.png?raw=true";
+            winnerDescription.innerHTML = "온유는 팀 프로젝트에서 한 팀원이 맡은 과제를 다 끝내지 못했을 때 선뜻 도와주겠다고 말하는 것처럼,<br> 지혜롭고 부드럽게 타인을 포용하는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/gentlenessQR.png?raw=true";
+        } else {
+            winnerImage.src = "https://github.com/min1336/murasaki/blob/main/selfControl.png?raw=true";
+            winnerDescription.innerHTML = "절제는 뿌리 깊은 나무가 중심을 지키는 것처럼,<br> 자신의 마음을 제어하고 외부의 유혹과 내적인 혼란 속에서도 쉽게 흔들리지 않는 것";
+            QR.src = "https://github.com/min1336/murasaki/blob/main/selfControlQR.png?raw=true";
+        }
+
+        const scores = ['사랑', '희락', '화평', '오래참음', '자비', '양선', '충성', '온유', '절제'];
+        const totalScores = [];
+        let totalNextPageScore = 0;
+        let totalThirdPageScore = 0;
+        let totalFourPageScore = 0;
+        let totalFivePageScore = 0;
+        let totalSixPageScore = 0;
+        let totalSevenPageScore = 0;
+
+        for (const score of scores) {
+            const nextpageScoreValue = parseInt(sessionStorage.getItem(`nextpage_${score}Score`)) || 0;
+            const thirdpageScoreValue = parseInt(sessionStorage.getItem(`thirdpage_${score}Score`)) || 0;
+            const fourpageScoreValue = parseInt(sessionStorage.getItem(`fourpage_${score}Score`)) || 0;
+            const fivepageScoreValue = parseInt(sessionStorage.getItem(`fivepage_${score}Score`)) || 0;
+            const sixpageScoreValue = parseInt(sessionStorage.getItem(`sixpage_${score}Score`)) || 0;
+            const sevenpageScoreValue = parseInt(sessionStorage.getItem(`sevenpage_${score}Score`)) || 0;
+
+            const totalScore = nextpageScoreValue + thirdpageScoreValue + fourpageScoreValue + fivepageScoreValue + sixpageScoreValue + sevenpageScoreValue;
+
+            totalScores.push({ scoreType: score, totalScore });
+
+            totalNextPageScore += nextpageScoreValue;
+            totalThirdPageScore += thirdpageScoreValue;
+            totalFourPageScore += fourpageScoreValue;
+            totalFivePageScore += fivepageScoreValue;
+            totalSixPageScore += sixpageScoreValue;
+            totalSevenPageScore += sevenpageScoreValue;
+        }
+
+        const chartLabels = scores;
+        const chartData = totalScores.map(item => item.totalScore / 3);
+
+        const ctx = document.getElementById("radarChart").getContext("2d");
+        new Chart(ctx, {
+            type: "radar",
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: "Total Combined Scores",
+                    data: chartData,
+                    backgroundColor: "rgba(124, 181, 103, 0.5)",
+                    borderColor: "rgba(124, 181, 103, 0.5)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: { display: false, stepSize: 2 },
+                        pointLabels: { color: "black", font: { size: 10 } },
+                        grid: {
+                            circular: false,
+                            color: context => context.index === context.chart.scales.r.ticks.length - 1 ? "rgba(124, 181, 103, 0.5)" : "rgba(211,211,211,0.2)"
+                        },
+                        angleLines: { color: "lightgray", lineWidth: 0.5 }
+                    }
+                },
+                elements: { line: { tension: 0, borderWidth: 2 }, point: { radius: 0 } },
+                plugins: { legend: { display: false, position: 'top' } },
+                animation: { duration: 2300, easing: 'easeInOutQuad' },
+                responsive: false
+            }
+        });
+
+        document.getElementById('home').addEventListener('click', function() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

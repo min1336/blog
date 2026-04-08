@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.7"/>
+    <title>행복의 열매따기</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    #progress-bar-container {
+        position: relative;
+        top: 5vh;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50%;
+        height: 40px;
+        background-color: #E0E0E0;
+        z-index: 1000;
+        border: 1px solid #E0E0E0;
+        border-radius: 100px;
+    }
+
+    #progress-bar {
+        height: 100%;
+        width: 100%; /* 진행률 설정 */
+        background-color: #7CB567;
+        border-radius: 100px;
+        position: relative;
+    }
+
+    .end-image {
+        position: absolute;
+        top: -60px;
+        right: -60px; /* 진행바의 오른쪽 끝으로 이동 */
+        width: 120px;
+        height: auto;
+        z-index: 1;
+    }
+
+    .progress-bar.filled {
+        background-color: #7CB567;
+    }
+</style>
+<body>
+    <form>
+        <div id="progress-bar-container">
+            <div id="progress-bar">
+                <img src="https://github.com/min1336/murasaki/blob/main/runningcat.png?raw=true" alt="Image" class="end-image">
+            </div>
+        </div>
+        <div class="container">
+            <!-- 질문 항목들 -->
+            <div class="container">
+                <div id="quiz">
+                <!-- 질문 항목들 -->
+                <br><br>
+                <div class="question">
+                    <h4>Q. 누군가가 행복해하는 모습을 보이면, 나도 기쁘다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="사랑" value="5"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="사랑" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="사랑" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="사랑" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="사랑" value="1"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 나는 회복 탄력성이 좋은 편이라고 생각한다.<br>(회복탄력성: 부정적인 상황을 극복하고 안정감을 되찾는 능력)</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="희락" value="5"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="희락" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="희락" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="희락" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="희락" value="1"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 친구들 간의 갈등이 발생할 때 개입하면 나만 피곤해진다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="화평" value="1"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="화평" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="화평" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="화평" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="화평" value="5"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 나는 조바심 때문에 일을 그르치고 후회한 적이 꽤 있다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="오래참음" value="1"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="오래참음" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="오래참음" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="오래참음" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="오래참음" value="5"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 곤경에 처한 사람을 보면, 필요 이상으로 그에게 도움을 주고 싶다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="자비" value="5"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="자비" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="자비" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="자비" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="자비" value="1"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 나는 선행을 베풀 때 보답이 돌아와야 한다고 생각한다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="양선" value="1"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="양선" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="양선" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="양선" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="양선" value="5"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 성과가 보이지 않는다면, 빠르게 그만두는 것이 오히려 현명하다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="충성" value="1"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="충성" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="충성" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="충성" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="충성" value="5"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 나는 감정적으로 불편한 상황에서도 말을 부드럽게 하는 편이다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="온유" value="5"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="온유" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="온유" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="온유" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="온유" value="1"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <div class="question">
+                    <h4>Q. 다음 날 중요한 일정이 있으면, 아쉬운 마음이 들어도 집에 일찍 들어오는 편이다.</h4>
+                    <div class="options-container">
+                        <span class="label-text">매우<br>그렇다</span>
+                        <div class="options">
+                            <label class="radio-container radio-container1"><input type="radio" name="절제" value="5"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container1"><input type="radio" name="절제" value="4"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container2"><input type="radio" name="절제" value="3"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="절제" value="2"><span class="radio-mark"></span></label>
+                            <label class="radio-container radio-container3"><input type="radio" name="절제" value="1"><span class="radio-mark"></span></label>
+                        </div>
+                        <span class="label-text">전혀<br>아니다</span>
+                    </div>
+                </div>
+                <br><br>
+                <!-- 다음 페이지 버튼 -->
+                <button type="button" onclick="submitTest()">결과 보기</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        //결과보기
+        function submitTest() {
+            const scores = ['사랑', '희락', '화평', '오래참음', '자비', '양선', '충성', '온유', '절제'];
+            for (const score of scores) {
+                const answer = document.querySelector(`input[name="${score}"]:checked`);
+                if (!quiz) {
+                    alert('모든 질문에 답해주세요!');
+                    return;
+                }
+                sessionStorage.setItem(`sevenpage_${score}Score`, answer.value);
+            }
+
+            let totalNextPageScore = 0; // nextpage에서의 총 점수
+            let totalThirdPageScore = 0; // thirdpage에서의 총 점수
+            let totalFourPageScore = 0;
+            let totalFivePageScore = 0;
+            let totalSixPageScore = 0;
+            let totalSevenPageScore = 0;
+
+            // 점수 정보를 저장할 배열 초기화
+            const totalScores = [];
+
+            // scores 배열을 순회하며 각 점수를 계산
+            for (const score of scores) {
+                const nextpageScoreValue = parseInt(sessionStorage.getItem(`nextpage_${score}Score`)) || 0;
+                const thirdpageScoreValue = parseInt(sessionStorage.getItem(`thirdpage_${score}Score`)) || 0;
+                const fourpageScoreValue = parseInt(sessionStorage.getItem(`fourpage_${score}Score`)) || 0;
+                const fivepageScoreValue = parseInt(sessionStorage.getItem(`fivepage_${score}Score`)) || 0;
+                const sixpageScoreValue = parseInt(sessionStorage.getItem(`sixpage_${score}Score`)) || 0;
+                const sevenpageScoreValue = parseInt(sessionStorage.getItem(`sevenpage_${score}Score`)) || 0;
+
+                const totalScore = nextpageScoreValue + thirdpageScoreValue + fourpageScoreValue + fivepageScoreValue + sixpageScoreValue + sevenpageScoreValue;
+
+                totalScores.push({ scoreType: score, totalScore });
+                totalNextPageScore += nextpageScoreValue;
+                totalThirdPageScore += thirdpageScoreValue;
+                totalFourPageScore += fourpageScoreValue;
+                totalFivePageScore += fivepageScoreValue;
+                totalSixPageScore += sixpageScoreValue;
+                totalSevenPageScore += sevenpageScoreValue;
+                }
+
+
+            // 점수 순위 매기기
+            const sortedScores = totalScores.sort((a, b) => b.totalScore - a.totalScore);
+
+            // 공동 우승 점수와 항목을 저장할 배열
+            const topScore = totalScores[0].totalScore;
+            const jointWinners = totalScores.filter(item => item.totalScore === topScore).map(item => item.scoreType);
+
+            // 공동 우승 여부 확인 후 페이지 이동
+            if (jointWinners.length > 1) {
+                // 공동 우승이 있을 때 공동우승 항목들을 sessionStorage에 저장하고 winwinPage로 이동
+                sessionStorage.setItem("jointWinners", JSON.stringify(jointWinners));
+                window.location.href = "winwinPage.html";
+            } // 공동우승이 없는 경우 최대값을 resultPage로 저장하고 이동
+            else {
+                const highestScore = sortedScores[0];
+                sessionStorage.setItem("highestScore", highestScore.scoreType);
+                window.location.href = "resultPage.html";
+            }
+        }
+    </script>
+</body>
+</html>

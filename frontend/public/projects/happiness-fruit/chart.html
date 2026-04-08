@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>간단한 2D 횡스크롤 게임</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000000;
+            color: #ffffff; /* 글자 색상을 흰색으로 설정 */
+            font-family: 'PFStardust', monospace; /* PFStardust 글꼴과 기본 모노스페이스 글꼴을 포함한 폰트 목록 지정 */
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #5c94fc;
+            border: 1px solid #000000;
+        }
+        #gameCanvasContainer {
+            position: relative;
+        }
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #5c94fc;
+            border: 1px solid #000000;
+        }
+        #dotFont {
+            position: absolute;
+            bottom: 10px; /* 원하는 위치로 조정 */
+            left: 50%; /* 화면 중앙으로 정렬 */
+            transform: translateX(-50%);
+            font-size: 24px; /* 원하는 글자 크기 설정 */
+        }
+        #gameCanvasContainer {
+            position: relative;
+        }
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #5c94fc;
+            border: 1px solid #000000;
+        }
+        #score {
+            position: absolute;
+            top: 500px; /* 캔버스 위에 위치 */
+            left: 50%; /* 가운데 정렬 */
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: white; /* 흰색으로 설정 */
+        }
+    </style>
+     <style>
+        @font-face {
+            font-family: 'PFStardust';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/PFStardust.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
+    <div id="score">SCORE : <span id="scoreValue">0</span></div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player = {
+            x: 200,
+            y: canvas.height - 50,
+            width: 50,
+            height: 50,
+            color: '#ff0000',
+            speed: 5,
+            jumpPower: 10,
+            gravity: 5.2, // 중력 추가
+            isJumping: false,
+            jumpHeight: 0,
+            canJump: true,
+            imageStay: new Image(),
+            imageJump: new Image()
+        };
+        player.imageStay.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/mario_stay.png';
+        player.imageJump.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/mario_jump.png';
+        player.currentImage = player.imageStay;
+
+        const ground = {
+            x: 0,
+            y: canvas.height - 40,
+            width: canvas.width,
+            height: 40,
+            color: '#00ff00',
+            image: new Image()
+        };
+        ground.image.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/plane.jpg';
+
+        const box = {
+            x: 200,
+            y: canvas.height - 230,
+            width: 50,
+            height: 50,
+            image: new Image()
+        };
+        box.image.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/box.png';
+
+        const coin = {
+            x: -50, // 시작 시에 화면 밖에 위치
+            y: -50,
+            width: 30,
+            height: 30,
+            image: new Image(),
+            speedY: 2.5, // 코인이 올라가는 속도
+            opacity: 0, // 초기 투명도 설정
+            isAnimating: false, // 코인 애니메이션 중인지 여부
+        };
+        coin.image.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/coin.png';
+
+        const grass = {
+            x: 10,
+            y: ground.y - 50, // 수풀을 땅과 겹치지 않도록 위치 설정
+            width: 100,
+            height: 50,
+            image: new Image()
+        };
+        grass.image.src = 'https://raw.githubusercontent.com/min1336/murasaki/main/Grass_new.png';
+
+        let score = 0; // 초기 점수
+
+        // 점수를 업데이트하는 함수
+        function updateScore(newScore) {
+            score += newScore;
+            document.getElementById('scoreValue').innerText = score;
+        }
+
+        function controlPlayer() {
+            if (player.isJumping && !player.canJump) { // 플레이어가 점프 중이고 땅에 닿아있지 않을 때만 적용
+                player.y -= player.jumpPower;
+                player.jumpHeight += player.jumpPower;
+                if (player.jumpHeight >= 100) {
+                    player.isJumping = false;
+                    player.jumpHeight = 0;
+                    player.currentImage = player.imageStay;
+                }
+            } else {
+                if (player.y < ground.y - player.height) {
+                    // 중력 적용하여 플레이어가 떨어지는 속도 제어
+                    player.y += player.gravity;
+                } else {
+                    player.y = ground.y - player.height;
+                    player.canJump = true;
+                }
+            }
+        }
+
+        function drawCoin() {
+            if (coin.isAnimating) {
+                ctx.globalAlpha = coin.opacity;
+                ctx.drawImage(coin.image, coin.x, coin.y, coin.width, coin.height);
+                ctx.globalAlpha = 1; // 다른 요소에 영향을 주지 않기 위해 다시 투명도를 1로 설정
+            }
+        }
+
+        function drawGrass() {
+            ctx.drawImage(grass.image, grass.x, grass.y, grass.width, grass.height);
+        }
+
+
+        function moveCoin() {
+            if (coin.isAnimating) {
+                coin.y -= coin.speedY;
+                coin.opacity -= 0.05; // 투명도 감소
+                if (coin.opacity <= 0) {
+                    coin.isAnimating = false; // 애니메이션 종료
+                    coin.opacity = 1; // 투명도 초기화
+                }
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(ground.image, ground.x, ground.y, ground.width, ground.height);
+            ctx.drawImage(box.image, box.x, box.y, box.width, box.height);
+            ctx.drawImage(player.currentImage, player.x, player.y, player.width, player.height);
+
+            controlPlayer();
+
+            if (checkCollision(player, box)) {
+                if (!coin.isAnimating) {
+                    createCoin();
+                    coin.isAnimating = true;
+                    updateScore(10); // 점수 10 추가
+                }
+            }
+            drawCoin();
+            moveCoin();
+        }
+
+        let coinTimer = null;
+
+        function createCoin() {
+            coin.x = box.x + box.width / 2 - coin.width / 2;
+            coin.y = box.y - coin.height;
+            coin.opacity = 1;
+
+            // 1초 후에 코인 사라지도록 타이머 설정
+            coinTimer = setTimeout(deleteCoin, 1000);
+        }
+
+        function deleteCoin() {
+            clearTimeout(coinTimer); // 타이머 중지
+            coin.opacity = 0; // 코인 투명도 0으로 설정
+        }
+
+        function checkCollision(object1, object2) {
+            if (
+                object1.x < object2.x + object2.width &&
+                object1.x + object1.width > object2.x &&
+                object1.y < object2.y + object2.height &&
+                object1.y + object1.height > object2.y
+            ) {
+                return true;
+            }
+            return false;
+        }
+
+        const gameInterval = setInterval(gameLoop, 1000 / 60);
+
+        canvas.addEventListener('click', () => {
+            if (player.canJump) {
+                player.isJumping = true;
+                player.currentImage = player.imageJump;
+                player.canJump = false;
+            }
+        });
+    </script>
+</body>
+</html>
