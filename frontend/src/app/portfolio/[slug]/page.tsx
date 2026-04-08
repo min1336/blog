@@ -66,7 +66,7 @@ export default async function ProjectDetailPage({
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm hover:underline"
             >
-              <ExternalLink className="h-4 w-4" /> Demo
+              <ExternalLink className="h-4 w-4" /> Website
             </a>
           )}
         </div>
