@@ -88,10 +88,20 @@ jobs:
           script: |
             cd ~/blog
             git pull
+            source .env
+
+            # 새 테이블 마이그레이션 (setting)
+            docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog -e "
+              CREATE TABLE IF NOT EXISTS setting (
+                \`key\` varchar(255) NOT NULL PRIMARY KEY,
+                value text NOT NULL
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            " 2>/dev/null || echo "Migration skipped (MySQL not ready)"
+
             docker-compose pull backend
             docker-compose up -d
             echo "Waiting for backend to start..."
-            sleep 10
+            sleep 15
             if docker-compose ps backend | grep -qE "(Up|running)"; then
               echo "Health check passed: backend is running"
             else
