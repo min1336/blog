@@ -41,7 +41,7 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
   }, [slug]);
 
   const handleSubmit = async () => {
-    if (!title.trim()) return;
+    if (!title.trim() || loading) return;
     setLoading(true);
     setError('');
     try {
