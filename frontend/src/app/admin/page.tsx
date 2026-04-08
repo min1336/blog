@@ -22,7 +22,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     getStats().then((res) => { if (res.data) setStats(res.data); }).catch(() => {});
     getProjects().then((res) => setProjectCount(res.data?.length || 0)).catch(() => {});
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/comments`, { credentials: 'include' })
+    fetch('/api/proxy/admin/comments', { credentials: 'include' })
       .then((r) => r.json())
       .then((json) => { if (json.success) setCommentCount(json.data.length); })
       .catch(() => {});

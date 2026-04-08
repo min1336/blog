@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileHeader } from "@/components/layout/mobile-header";
+import { AdminFab } from "@/components/common/admin-fab";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -50,6 +51,7 @@ export default function RootLayout({
             <div className="flex-1 flex flex-col">
               <MobileHeader />
               <main className="flex-1 p-6 md:p-8">{children}</main>
+              <AdminFab />
             </div>
           </div>
         </ThemeProvider>

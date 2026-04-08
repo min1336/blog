@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { getCategoryTree } from '@/lib/api';
+import { useCategoryEvents } from '@/lib/use-category-events';
 import { cn } from '@/lib/utils';
 import type { CategoryTree } from '@/lib/types';
 
@@ -16,11 +17,16 @@ export function CategoryNav() {
   const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [collapsed, setCollapsed] = useState<Record<number, boolean>>({});
 
-  useEffect(() => {
+  const fetchCategories = useCallback(() => {
     getCategoryTree().then((res) => {
       if (res.success) setCategories(res.data);
     });
   }, []);
+
+  useEffect(() => { fetchCategories(); }, [fetchCategories]);
+
+  // SSE: 카테고리 변경 시 자동 갱신
+  useCategoryEvents(fetchCategories);
 
   const toggleCollapse = (id: number) => {
     setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -31,6 +37,9 @@ export function CategoryNav() {
     if (currentSlug === cat.slug) return true;
     return cat.children.some((child) => child.slug === currentSlug);
   };
+
+  const isAdmin = pathname.startsWith('/admin');
+  const categoryBase = isAdmin ? '/admin/posts' : '/blog';
 
   if (categories.length === 0) return null;
 
@@ -63,7 +72,7 @@ export function CategoryNav() {
               {parent.children.map((child) => (
                 <Link
                   key={child.id}
-                  href={`/blog?category=${child.slug}`}
+                  href={`${categoryBase}?category=${child.slug}`}
                   className={cn(
                     'flex items-center justify-between px-3 py-1.5 text-sm rounded-lg transition-colors',
                     currentSlug === child.slug

@@ -114,6 +114,15 @@ export const updateProject = (slug: string, body: Partial<Project>) =>
 export const deleteProject = (slug: string) =>
   fetchApi<{ message: string }>(`/projects/${slug}`, { method: 'DELETE' });
 
+// Settings
+export const getSettings = () =>
+  fetchApi<Record<string, string>>('/settings');
+
+export const updateSettings = (body: Record<string, string>) =>
+  fetchApi<{ key: string; value: string }[]>('/settings', {
+    method: 'PATCH', body: JSON.stringify(body),
+  });
+
 // Upload
 export const uploadImage = async (file: File) => {
   const formData = new FormData();

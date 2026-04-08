@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import type { Comment } from '@/lib/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function AdminCommentsPage() {
   const [comments, setComments] = useState<(Comment & { post?: { title: string; slug: string } })[]>([]);
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/admin/comments`, { credentials: 'include' });
+      const res = await fetch(`/api/proxy/admin/comments`, { credentials: 'include' });
       const json = await res.json();
       if (json.success) setComments(json.data);
     } catch {}
@@ -23,7 +22,7 @@ export default function AdminCommentsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('댓글을 삭제하시겠습니까?')) return;
     try {
-      await fetch(`${API_URL}/api/admin/comments/${id}`, {
+      await fetch(`/api/proxy/admin/comments/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

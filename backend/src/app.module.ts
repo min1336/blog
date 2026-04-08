@@ -10,6 +10,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadModule } from './upload/upload.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CategoriesModule } from './categories/categories.module';
     CommentsModule,
     UploadModule,
     CategoriesModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

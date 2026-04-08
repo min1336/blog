@@ -1,31 +1,130 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Briefcase, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/common/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { CategoryNav } from '@/components/layout/category-nav';
+import { getSettings, updateSettings } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
-const staticNavItems = [
-  { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { href: '/about', label: 'About', icon: User },
-];
+// 더블클릭으로 인라인 편집 가능한 텍스트
+function EditableText({
+  value,
+  onSave,
+  className,
+  inputClassName,
+}: {
+  value: string;
+  onSave: (newValue: string) => void;
+  className?: string;
+  inputClassName?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { setText(value); }, [value]);
+  useEffect(() => { if (editing) inputRef.current?.focus(); }, [editing]);
+
+  const handleSave = () => {
+    setEditing(false);
+    if (text.trim() && text !== value) onSave(text.trim());
+  };
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSave();
+          if (e.key === 'Escape') { setText(value); setEditing(false); }
+        }}
+        className={cn('bg-transparent border-b border-dashed border-foreground/30 outline-none text-center w-full', inputClassName)}
+      />
+    );
+  }
+
+  return (
+    <span
+      onDoubleClick={() => setEditing(true)}
+      className={cn('cursor-default', className)}
+      title="더블클릭으로 수정"
+    >
+      {value}
+    </span>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
+
+  const [siteName, setSiteName] = useState("Min's Dev Blog");
+  const [siteDesc, setSiteDesc] = useState('배우고 기록하고 공유하기');
+
+  useEffect(() => {
+    getSettings().then((res) => {
+      if (res.success && res.data) {
+        if (res.data.site_name) setSiteName(res.data.site_name);
+        if (res.data.site_description) setSiteDesc(res.data.site_description);
+      }
+    });
+  }, []);
+
+  const handleSaveName = (value: string) => {
+    setSiteName(value);
+    updateSettings({ site_name: value });
+  };
+
+  const handleSaveDesc = (value: string) => {
+    setSiteDesc(value);
+    updateSettings({ site_description: value });
+  };
+
+  const staticNavItems = isAdmin
+    ? [
+        { href: '/admin/projects', label: 'Projects', icon: Briefcase },
+        { href: '/about', label: 'About', icon: User },
+      ]
+    : [
+        { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
+        { href: '/about', label: 'About', icon: User },
+      ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 min-h-screen border-r bg-background p-6">
-      <Link href="/" className="mb-8 group">
+    <aside className="sidebar-desktop flex-col w-64 min-h-screen border-r bg-background p-6">
+      <Link href={isAdmin ? '/admin' : '/'} className="mb-8 group">
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <span className="text-2xl font-bold text-zinc-100 dark:text-zinc-900">MH</span>
           </div>
-          <h2 className="font-bold text-lg">Min&apos;s Dev Blog</h2>
-          <p className="text-sm text-muted-foreground">배우고 기록하고 공유하기</p>
+          {isAdmin ? (
+            <>
+              <EditableText
+                value={siteName}
+                onSave={handleSaveName}
+                className="font-bold text-lg"
+                inputClassName="font-bold text-lg"
+              />
+              <EditableText
+                value={siteDesc}
+                onSave={handleSaveDesc}
+                className="text-sm text-muted-foreground"
+                inputClassName="text-sm text-muted-foreground"
+              />
+            </>
+          ) : (
+            <>
+              <h2 className="font-bold text-lg">{siteName}</h2>
+              <p className="text-sm text-muted-foreground">{siteDesc}</p>
+            </>
+          )}
         </div>
       </Link>
 
@@ -40,7 +139,7 @@ export function Sidebar() {
 
       <Separator className="mb-4" />
 
-      {/* 정적 링크: 포트폴리오, About */}
+      {/* 정적 링크 */}
       <nav className="flex flex-col gap-1 mb-4">
         {staticNavItems.map((item) => (
           <Link

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getPosts, deletePost } from '@/lib/api';
@@ -9,16 +10,27 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import type { Post } from '@/lib/types';
 
 export default function AdminPostsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminPostsContent />
+    </Suspense>
+  );
+}
+
+function AdminPostsContent() {
+  const searchParams = useSearchParams();
+  const categorySlug = searchParams.get('category');
   const [posts, setPosts] = useState<Post[]>([]);
 
   const fetchPosts = async () => {
     try {
-      const res = await getPosts('limit=100');
+      const params = categorySlug ? `limit=100&category=${categorySlug}` : 'limit=100';
+      const res = await getPosts(params);
       setPosts(res.data);
     } catch {}
   };
 
-  useEffect(() => { fetchPosts(); }, []);
+  useEffect(() => { fetchPosts(); }, [categorySlug]);
 
   const handleDelete = async (slug: string) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
@@ -33,7 +45,17 @@ export default function AdminPostsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Posts</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">Posts</h1>
+          {categorySlug && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{categorySlug}</Badge>
+              <Link href="/admin/posts" className="text-xs text-muted-foreground hover:text-foreground">
+                전체보기
+              </Link>
+            </div>
+          )}
+        </div>
         <Link href="/admin/posts/new">
           <Button><Plus className="h-4 w-4 mr-1" /> New Post</Button>
         </Link>
@@ -75,7 +97,9 @@ export default function AdminPostsPage() {
               </tr>
             ))}
             {posts.length === 0 && (
-              <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No posts yet</td></tr>
+              <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">
+                {categorySlug ? '이 카테고리에 글이 없습니다.' : 'No posts yet'}
+              </td></tr>
             )}
           </tbody>
         </table>

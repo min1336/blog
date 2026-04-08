@@ -8,19 +8,33 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
+import { Observable, map } from 'rxjs';
 import { CategoriesService } from './categories.service';
+import { CategoryEventsService } from './category-events.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(
+    private categoriesService: CategoriesService,
+    private categoryEvents: CategoryEventsService,
+  ) {}
 
   @Get()
   findAll() {
     return this.categoriesService.findAllTree();
+  }
+
+  @Sse('events')
+  sse(): Observable<MessageEvent> {
+    return this.categoryEvents.subscribe().pipe(
+      map((event) => ({ data: event }) as MessageEvent),
+    );
   }
 
   @Get(':slug')

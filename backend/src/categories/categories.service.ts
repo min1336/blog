@@ -10,6 +10,7 @@ import { Category } from './category.entity';
 import { Post } from '../posts/post.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoryEventsService } from './category-events.service';
 
 @Injectable()
 export class CategoriesService {
@@ -18,6 +19,7 @@ export class CategoriesService {
     private categoryRepo: Repository<Category>,
     @InjectRepository(Post)
     private postRepo: Repository<Post>,
+    private events: CategoryEventsService,
   ) {}
 
   /**
@@ -91,7 +93,9 @@ export class CategoriesService {
     }
 
     const category = this.categoryRepo.create(dto);
-    return this.categoryRepo.save(category);
+    const saved = await this.categoryRepo.save(category);
+    this.events.emit({ type: 'created' });
+    return saved;
   }
 
   async update(id: number, dto: UpdateCategoryDto) {
@@ -116,7 +120,9 @@ export class CategoriesService {
     }
 
     Object.assign(category, dto);
-    return this.categoryRepo.save(category);
+    const saved = await this.categoryRepo.save(category);
+    this.events.emit({ type: 'updated' });
+    return saved;
   }
 
   async remove(id: number) {
@@ -140,6 +146,7 @@ export class CategoriesService {
     }
 
     await this.categoryRepo.remove(category);
+    this.events.emit({ type: 'deleted' });
     return { message: '카테고리가 삭제되었습니다.' };
   }
 }

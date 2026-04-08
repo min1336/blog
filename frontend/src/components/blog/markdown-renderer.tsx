@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { remarkDashList } from '@/lib/remark-dash-list';
 
 function makeHeadingId(children: React.ReactNode) {
   return String(children)
@@ -16,7 +17,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
     <div className="prose prose-zinc dark:prose-invert max-w-[75ch] prose-headings:scroll-mt-20 prose-a:text-foreground prose-a:underline-offset-4 prose-h2:border-b prose-h2:border-border prose-h2:pb-2 prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-p:leading-relaxed">
       <ReactMarkdown
         children={trimmed}
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkDashList]}
         components={{
           h1: ({ children, ...props }) => (
             <h1 id={makeHeadingId(children)} {...props}>{children}</h1>
