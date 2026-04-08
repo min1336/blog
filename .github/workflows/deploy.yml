@@ -102,9 +102,12 @@ jobs:
             docker-compose up -d
             echo "Waiting for backend to start..."
             sleep 15
-            docker-compose logs --tail=30 backend
-            curl -s http://localhost:4000/api/health || echo "Health endpoint failed"
-            curl -s http://localhost:4000/api/categories || echo "Categories endpoint failed"
+            echo "=== Backend Logs ==="
+            docker-compose logs --tail=50 backend 2>&1 | grep -iE "error|Error|fail|QueryFailed|Table|column" || echo "No errors in logs"
+            echo "=== API Test ==="
+            curl -sv http://localhost:4000/api/categories 2>&1 | tail -5
+            echo "=== DB Tables ==="
+            docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog -e "SHOW TABLES; DESCRIBE categories;" 2>/dev/null || echo "DB check failed"
 
       - name: Remove Github Actions IP from Security Group
         if: always()
