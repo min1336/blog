@@ -92,9 +92,9 @@ jobs:
             source .env
 
             # DB 마이그레이션
-            docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog -e "
+            docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog <<'EOSQL'
               CREATE TABLE IF NOT EXISTS setting (
-                \`key\` varchar(255) NOT NULL PRIMARY KEY,
+                `key` varchar(255) NOT NULL PRIMARY KEY,
                 value text NOT NULL
               ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -109,10 +109,16 @@ jobs:
                 INDEX idx_categories_parent_id (parent_id),
                 FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE RESTRICT
               ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            EOSQL
 
-              ALTER TABLE posts ADD COLUMN IF NOT EXISTS category_id int DEFAULT NULL;
-              ALTER TABLE posts ADD INDEX IF NOT EXISTS idx_posts_category_id (category_id);
-            " 2>/dev/null || echo "Migration completed with warnings"
+            # posts 테이블에 category_id 컬럼 추가 (없으면)
+            docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog -e \
+              "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='blog' AND TABLE_NAME='posts' AND COLUMN_NAME='category_id'" \
+              2>/dev/null | grep -q category_id || \
+              docker-compose exec -T mysql mysql -ublog -p"$DB_PASSWORD" blog -e \
+              "ALTER TABLE posts ADD COLUMN category_id int DEFAULT NULL, ADD INDEX idx_posts_category_id (category_id)" 2>/dev/null
+
+            echo "Migration done"
 
             docker-compose pull backend
             docker-compose up -d
