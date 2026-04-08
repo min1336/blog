@@ -49,13 +49,20 @@ function InlineInput({
   onCancel: () => void;
 }) {
   const [value, setValue] = useState(defaultValue || '');
+  const [submitted, setSubmitted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  const submit = () => {
+    if (submitted || !value.trim()) return;
+    setSubmitted(true);
+    onSubmit(value.trim());
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.nativeEvent.isComposing) return;
-    if (e.key === 'Enter' && value.trim()) onSubmit(value.trim());
+    if (e.key === 'Enter') submit();
     if (e.key === 'Escape') onCancel();
   };
 
@@ -70,13 +77,14 @@ function InlineInput({
         onBlur={() => { if (!value.trim()) onCancel(); }}
         placeholder={placeholder}
         className="h-8 max-w-xs"
+        disabled={submitted}
       />
       <Button
         variant="ghost"
         size="icon"
         className="h-7 w-7 shrink-0"
-        onClick={() => value.trim() && onSubmit(value.trim())}
-        disabled={!value.trim()}
+        onClick={submit}
+        disabled={!value.trim() || submitted}
       >
         <Check className="h-4 w-4 text-green-600" />
       </Button>
@@ -225,6 +233,7 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryTree[]>([]);
   const [adding, setAdding] = useState<{ parentId: number | null } | null>(null);
   const [editing, setEditing] = useState<{ id: number; parentId: number | null } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -241,22 +250,34 @@ export default function AdminCategoriesPage() {
   useCategoryEvents(fetchCategories);
 
   const handleCreate = async (name: string, parentId: number | null) => {
-    const res = await createCategory({
-      name,
-      slug: nameToSlug(name),
-      parent_id: parentId ?? undefined,
-    });
-    if (res.success) {
-      setAdding(null);
-      fetchCategories();
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await createCategory({
+        name,
+        slug: nameToSlug(name),
+        parent_id: parentId ?? undefined,
+      });
+      if (res.success) {
+        setAdding(null);
+        fetchCategories();
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEdit = async (id: number, name: string) => {
-    const res = await updateCategory(id, { name, slug: nameToSlug(name) });
-    if (res.success) {
-      setEditing(null);
-      fetchCategories();
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await updateCategory(id, { name, slug: nameToSlug(name) });
+      if (res.success) {
+        setEditing(null);
+        fetchCategories();
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
