@@ -29,7 +29,7 @@ jobs:
 
       - name: Get Github Actions IP
         id: ip
-        uses: haythem/public-ip@v1.2
+        uses: haythem/public-ip@v1.3
 
       # TODO: AWS OIDC 인증으로 전환 권장 (장기 Access Key 대신 단기 토큰)
       # permissions에 id-token: write 추가 + role-to-assume 설정 필요
