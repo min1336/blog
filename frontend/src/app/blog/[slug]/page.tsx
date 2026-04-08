@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getPost } from '@/lib/api';
 import { MarkdownRenderer } from '@/components/blog/markdown-renderer';
-import { TableOfContents } from '@/components/blog/table-of-contents';
 import { TagBadge } from '@/components/blog/tag-badge';
 import { CommentSection } from '@/components/comments/comment-section';
 import { ArrowLeft, ArrowRight, Eye, Clock } from 'lucide-react';
@@ -69,8 +68,6 @@ export default async function BlogDetailPage({
           </div>
         )}
       </header>
-
-      <TableOfContents content={post.content} />
 
       <MarkdownRenderer content={post.content} />
 
