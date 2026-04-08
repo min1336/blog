@@ -1,19 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: '/happiness-fruit',
-        destination: '/happiness-fruit/',
-        permanent: true,
-      },
-    ];
-  },
   async rewrites() {
     return [
       {
-        source: '/happiness-fruit/',
+        source: '/happiness-fruit',
         destination: '/projects/happiness-fruit/index.html',
       },
       {
