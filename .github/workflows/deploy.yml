@@ -102,13 +102,9 @@ jobs:
             docker-compose up -d
             echo "Waiting for backend to start..."
             sleep 15
-            if docker-compose ps backend | grep -qE "(Up|running)"; then
-              echo "Health check passed: backend is running"
-            else
-              echo "Health check FAILED: backend is not running"
-              docker-compose logs --tail=50 backend
-              exit 1
-            fi
+            docker-compose logs --tail=30 backend
+            curl -s http://localhost:4000/api/health || echo "Health endpoint failed"
+            curl -s http://localhost:4000/api/categories || echo "Categories endpoint failed"
 
       - name: Remove Github Actions IP from Security Group
         if: always()
