@@ -27,6 +27,7 @@ export function AdminNav() {
       // ignore
     }
     router.push('/admin/login');
+    router.refresh();
   };
 
   return (

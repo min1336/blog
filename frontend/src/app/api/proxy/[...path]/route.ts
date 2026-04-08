@@ -42,6 +42,11 @@ async function proxyRequest(req: NextRequest, { params }: { params: Promise<{ pa
     res.headers.append('set-cookie', c);
   }
 
+  // 로그아웃 시 브라우저 쿠키 직접 클리어
+  if (targetPath === '/api/auth/logout') {
+    res.headers.append('set-cookie', 'access_token=; Path=/; Max-Age=0; HttpOnly');
+  }
+
   return res;
 }
 
