@@ -36,6 +36,11 @@ export default async function BlogDetailPage({
   const res = await getPost(slug);
   const post = res.data;
 
+  if (!post || !post.content) {
+    const { notFound } = await import('next/navigation');
+    notFound();
+  }
+
   const readingTime = Math.ceil(post.content.length / 500);
   const date = new Date(post.created_at).toLocaleDateString('ko-KR', {
     year: 'numeric',
