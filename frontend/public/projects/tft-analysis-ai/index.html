@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFT.GG — 전적 분석 & AI 코칭</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon">TFT</span>
+        <span class="logo-text">.GG</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">기능</a>
+        <a href="#demo">데모</a>
+        <a href="#tech">기술 스택</a>
+        <a href="#architecture">아키텍처</a>
+        <a href="https://github.com/min1336/TFT_AI_WEB" target="_blank" class="nav-github">GitHub &nearr;</a>
+      </div>
+      <button class="mobile-menu" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">학교 팀 프로젝트 &middot; 2025.09 ~ 2025.12</div>
+      <h1>TFT 전적 분석 &<br/><span class="gradient-text">AI 코칭 서비스</span></h1>
+      <p class="hero-desc">
+        롤토체스(TFT) 전적을 분석하고, <strong>Google Gemini AI</strong>가 1:1 맞춤 코칭을 제공합니다.<br/>
+        메타 덱 추천, 실시간 챗봇, 인게임 덱 빌더까지 — 올인원 TFT 도우미.
+      </p>
+      <div class="hero-actions">
+        <a href="#demo" class="btn btn-primary">데모 체험하기</a>
+        <a href="https://github.com/min1336/TFT_AI_WEB" target="_blank" class="btn btn-secondary">GitHub &nearr;</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">9,981</span>
+          <span class="stat-label">Lines of Code</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">21</span>
+          <span class="stat-label">Java Classes</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Core Features</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">10</span>
+          <span class="stat-label">API Endpoints</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>핵심 기능</h2>
+        <p>6가지 핵심 기능으로 TFT 실력 향상을 도와드립니다</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card feature-highlight">
+          <div class="feature-icon">&#x1F50D;</div>
+          <h3>소환사 전적 조회</h3>
+          <p>Riot API로 최근 30경기 매치 데이터를 조회하고, DB에 캐싱하여 빠르게 분석합니다. 최애 챔피언, 시너지, 승률을 한눈에 확인하세요.</p>
+          <div class="feature-tags">
+            <span>Riot API</span><span>MySQL</span><span>JDBC</span>
+          </div>
+        </div>
+        <div class="feature-card feature-highlight">
+          <div class="feature-icon">&#x1F916;</div>
+          <h3>AI 1:1 피드백</h3>
+          <p>특정 매치를 선택하면 Gemini AI가 전적 데이터를 분석하여 개인 맞춤 코칭 피드백을 생성합니다. "왜 졌는지"를 알 수 있습니다.</p>
+          <div class="feature-tags">
+            <span>Gemini AI</span><span>Python</span><span>ProcessBuilder</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4AC;</div>
+          <h3>실시간 AI 챗봇</h3>
+          <p>메타 덱 데이터와 커스텀 태그 시스템으로 구조화된 프롬프트를 생성하여 Gemini API와 실시간으로 대화합니다.</p>
+          <div class="feature-tags">
+            <span>Gemini 2.5 Flash</span><span>REST API</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F3AF;</div>
+          <h3>메타 덱 추천</h3>
+          <p>현재 메타의 추천 덱 목록과 상세 가이드를 제공합니다. 핵심 유닛, 시너지, 아이템 조합을 확인하세요.</p>
+          <div class="feature-tags">
+            <span>MySQL</span><span>Data Dragon</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F9E9;</div>
+          <h3>인게임 덱 빌더</h3>
+          <p>헥스 그리드 배치판에서 챔피언을 배치하면 실시간으로 활성 시너지를 계산합니다.</p>
+          <div class="feature-tags">
+            <span>JavaScript</span><span>Hex Grid</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4DA;</div>
+          <h3>챔피언 & 시너지 도감</h3>
+          <p>모든 챔피언의 스탯, 스킬, 소속 시너지를 필터링 가능한 도감으로 조회합니다.</p>
+          <div class="feature-tags">
+            <span>Data Dragon</span><span>GameData Cache</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Demo -->
+  <section class="demo-section" id="demo">
+    <div class="container">
+      <div class="section-header">
+        <h2>데모 체험</h2>
+        <p>소환사 검색과 AI 코칭을 직접 체험해보세요</p>
+      </div>
+
+      <!-- Search Demo -->
+      <div class="demo-panel">
+        <div class="demo-tab-bar">
+          <button class="demo-tab active" data-tab="search">전적 검색</button>
+          <button class="demo-tab" data-tab="chat">AI 챗봇</button>
+          <button class="demo-tab" data-tab="meta">메타 덱</button>
+        </div>
+
+        <!-- Search Tab -->
+        <div class="demo-content active" id="tab-search">
+          <div class="search-box">
+            <input type="text" id="summoner-input" placeholder="소환사 이름#태그 (예: Hide on bush#KR1)" />
+            <button class="btn btn-primary" onclick="searchSummoner()">검색</button>
+          </div>
+          <div id="search-result" class="search-result">
+            <div class="result-placeholder">
+              <p>소환사를 검색하면 전적 분석 결과가 여기에 표시됩니다</p>
+              <p class="result-hint">데모 데이터: 아무 이름이나 입력해보세요</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div class="demo-content" id="tab-chat">
+          <div class="chat-window">
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-msg bot">
+                <div class="chat-avatar">AI</div>
+                <div class="chat-bubble">안녕하세요! TFT AI 코치입니다. 전략, 메타 덱, 챔피언 조합에 대해 물어보세요.</div>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendChat()" />
+              <button class="btn btn-primary" onclick="sendChat()">전송</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta Tab -->
+        <div class="demo-content" id="tab-meta">
+          <div class="meta-grid" id="meta-grid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="tech-section" id="tech">
+    <div class="container">
+      <div class="section-header">
+        <h2>기술 스택</h2>
+        <p>Spring 없이 직접 설계한 커스텀 MVC 프레임워크 기반</p>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-category">Backend</div>
+          <div class="tech-items">
+            <div class="tech-item"><span class="tech-dot backend"></span>Java 17</div>
+            <div class="tech-item"><span class="tech-dot backend"></span>Custom MVC Servlet</div>
+            <div class="tech-item"><span class="tech-dot backend"></span>Apache Tomcat 9.0</div>
+            <div class="tech-item"><span class="tech-dot backend"></span>JDBC</div>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-category">Frontend</div>
+          <div class="tech-items">
+            <div class="tech-item"><span class="tech-dot frontend"></span>JSP (16 Views)</div>
+            <div class="tech-item"><span class="tech-dot frontend"></span>CSS (5 Stylesheets)</div>
+            <div class="tech-item"><span class="tech-dot frontend"></span>JavaScript</div>
+            <div class="tech-item"><span class="tech-dot frontend"></span>AJAX</div>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-category">AI & API</div>
+          <div class="tech-items">
+            <div class="tech-item"><span class="tech-dot ai"></span>Google Gemini 2.5 Flash</div>
+            <div class="tech-item"><span class="tech-dot ai"></span>Riot Games TFT API</div>
+            <div class="tech-item"><span class="tech-dot ai"></span>Data Dragon CDN</div>
+            <div class="tech-item"><span class="tech-dot ai"></span>Python 3 Script</div>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-category">Database</div>
+          <div class="tech-items">
+            <div class="tech-item"><span class="tech-dot db"></span>MySQL 8</div>
+            <div class="tech-item"><span class="tech-dot db"></span>5 Tables</div>
+            <div class="tech-item"><span class="tech-dot db"></span>INSERT IGNORE</div>
+            <div class="tech-item"><span class="tech-dot db"></span>GameData Singleton Cache</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="arch-section" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <h2>아키텍처</h2>
+        <p>커스텀 MVC 프레임워크의 요청 처리 흐름</p>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-flow">
+          <div class="arch-node client">
+            <div class="arch-icon">&#x1F310;</div>
+            <div class="arch-label">Client</div>
+            <div class="arch-sub">Browser</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node servlet">
+            <div class="arch-icon">&#x2699;</div>
+            <div class="arch-label">ControllerServlet</div>
+            <div class="arch-sub">*.do URL Intercept</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node handler">
+            <div class="arch-icon">&#x1F4CB;</div>
+            <div class="arch-label">CommandHandler</div>
+            <div class="arch-sub">10 Handlers</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node view">
+            <div class="arch-icon">&#x1F4C4;</div>
+            <div class="arch-label">JSP View</div>
+            <div class="arch-sub">16 Views</div>
+          </div>
+        </div>
+        <div class="arch-services">
+          <div class="arch-service-row">
+            <div class="arch-node service">
+              <div class="arch-icon">&#x1F4BE;</div>
+              <div class="arch-label">MySQL</div>
+              <div class="arch-sub">5 Tables / JDBC</div>
+            </div>
+            <div class="arch-node service">
+              <div class="arch-icon">&#x1F3AE;</div>
+              <div class="arch-label">Riot API</div>
+              <div class="arch-sub">Account / Match / League</div>
+            </div>
+            <div class="arch-node service">
+              <div class="arch-icon">&#x2728;</div>
+              <div class="arch-label">Gemini AI</div>
+              <div class="arch-sub">REST API Direct</div>
+            </div>
+            <div class="arch-node service">
+              <div class="arch-icon">&#x1F5BC;</div>
+              <div class="arch-label">Data Dragon</div>
+              <div class="arch-sub">Image CDN</div>
+            </div>
+          </div>
+        </div>
+        <div class="arch-props">
+          <h4>commandHandler.properties</h4>
+          <pre><code>main.do      = lolaigg.MainHandler
+user.do      = lolaigg.UserHandler
+userQuery.do = lolaigg.UserQueryHandler
+feedBack.do  = lolaigg.FeedBackHandler
+meta.do      = lolaigg.MetaHandler
+guide.do     = lolaigg.GuideHandler
+chat.do      = lolaigg.ChatHandler
+champions.do = lolaigg.ChampionHandler
+ingame.do    = lolaigg.IngameHandler
+synergies.do = lolaigg.SynergyListHandler</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Challenges -->
+  <section class="challenges-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>기술적 도전</h2>
+        <p>프로젝트를 통해 해결한 핵심 과제들</p>
+      </div>
+      <div class="challenge-list">
+        <div class="challenge-item">
+          <div class="challenge-num">01</div>
+          <div class="challenge-body">
+            <h4>Riot API 데이터 정규화</h4>
+            <p><code>TFT15_Jinx</code>와 <code>Jinx</code> 등 혼재된 ID 포맷을 <code>getCanonicalChampionName()</code>으로 통일</p>
+          </div>
+        </div>
+        <div class="challenge-item">
+          <div class="challenge-num">02</div>
+          <div class="challenge-body">
+            <h4>JDBC 대량 데이터 최적화</h4>
+            <p><code>INSERT IGNORE</code> + 선행 중복 체크로 30경기 x 8명 데이터를 효율적으로 적재</p>
+          </div>
+        </div>
+        <div class="challenge-item">
+          <div class="challenge-num">03</div>
+          <div class="challenge-body">
+            <h4>Gemini API 직접 통합</h4>
+            <p>Java SDK 없이 <code>HttpURLConnection</code>으로 REST API 직접 구현, JSON 수동 조립</p>
+          </div>
+        </div>
+        <div class="challenge-item">
+          <div class="challenge-num">04</div>
+          <div class="challenge-body">
+            <h4>프롬프트 엔지니어링</h4>
+            <p>커스텀 태그 <code>[[DECK:...]]</code>, <code>[[CHAMP:...]]</code>로 토큰 절약 + 구조화된 응답</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <span class="logo"><span class="logo-icon">TFT</span><span class="logo-text">.GG</span></span>
+          <p>협성대학교 팀 프로젝트 &middot; 2025</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/min1336/TFT_AI_WEB" target="_blank">GitHub</a>
+          <a href="/portfolio/tft-analysis-ai">포트폴리오</a>
+          <a href="/portfolio">돌아가기</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

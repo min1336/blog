@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         source: '/happiness-fruit/:path+',
         destination: '/projects/happiness-fruit/:path+',
       },
+      {
+        source: '/tft-demo',
+        destination: '/projects/tft-analysis-ai/index.html',
+      },
+      {
+        source: '/tft-demo/:path+',
+        destination: '/projects/tft-analysis-ai/:path+',
+      },
     ];
   },
 };
